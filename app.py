@@ -122,7 +122,7 @@ def user_login_firebase(email, password):
 
 def admin_login_hardcoded(username, password):
     ADMIN_USERNAME = "admin_sepahan"
-    ADMIN_PASSWORD = "admin_pass" # CHANGE THIS IN PRODUCTION!
+    ADMIN_PASSWORD = "Arian" # CHANGE THIS IN PRODUCTION!
     if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
         st.session_state.user_id = "admin_id_hardcoded"
         st.session_state.user_email = ADMIN_USERNAME

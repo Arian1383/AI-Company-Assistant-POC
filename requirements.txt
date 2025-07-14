@@ -5,4 +5,3 @@ langchain-community
 pypdf
 numpy<2.0.0
 faiss-cpu
-firebase-admin

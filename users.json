@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "username": "Sepahan",
+            "password": "Arian",
+            "creation_time": "2024-01-01T12:00:00"
+        }
+    ],
+    "admin_users": [
+        {
+            "username": "admin_sepahan",
+            "password": "admin_pass",
+            "creation_time": "2024-01-01T12:00:00"
+        }
+    ]
+}

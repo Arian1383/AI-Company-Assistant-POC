@@ -5,15 +5,14 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 import os
 from datetime import datetime
-import tempfile # برای ذخیره موقت فایل‌های آپلود شده
-import base64 # برای مدیریت تصاویر
-import json # برای ذخیره و خواندن کاربران و متادیتا فایل‌ها
+import tempfile # For temporary file storage
+import base64 # For image handling
+import json # For local user/metadata storage
 
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document # Import Document here for load_knowledge_base
 
-# --- Global App ID (برای نامگذاری فایل‌های محلی) ---
-# در این نسخه بدون Firebase، این فقط یک نام برای فایل‌های محلی است.
+# --- Global App ID (for local file naming) ---
 app_id = "sepahan-ai-assistant-local" 
 
 # --- Initialize session state variables ---
@@ -25,7 +24,7 @@ if 'is_admin' not in st.session_state:
     st.session_state.is_admin = False
 if 'user_id' not in st.session_state:
     st.session_state.user_id = None
-if 'user_email' not in st.session_state: # در این نسخه user_email همان username است
+if 'user_email' not in st.session_state: # In this version, user_email is the same as username
     st.session_state.user_email = None
 if 'knowledge_vector_store' not in st.session_state:
     st.session_state.knowledge_vector_store = None
@@ -34,12 +33,11 @@ if 'messages' not in st.session_state:
 if 'theme' not in st.session_state:
     st.session_state.theme = "light" # Default theme
 
+
 # --- File Paths for Local Storage ---
 USERS_FILE = "users.json"
-# KNOWLEDGE_METADATA_FILE = "knowledge_metadata.json" # فعلا برای سادگی، مدیریت فایل از طریق GitHub است.
 
-
-# --- Page Configuration and Styling ---
+# --- Page Configuration ---
 st.set_page_config(
     page_title="دستیار دانش شرکت سپاهان",
     page_icon="🧠", # آیکون مغز برای حس AI
@@ -58,13 +56,14 @@ def load_css(theme):
         with open(css_file) as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     else:
-        st.warning(f"⚠️ فایل CSS '{css_file}' پیدا نشد. لطفاً آن را در کنار 'app.py' قرار دهید.")
+        # Fallback to default Streamlit theme if CSS files are not found
+        st.warning(f"⚠️ فایل CSS '{css_file}' پیدا نشد. لطفاً آن را در کنار 'app.py' قرار دهید. از تم پیش‌فرض Streamlit استفاده می‌شود.")
 
-# Apply selected theme CSS
+# Apply selected theme CSS (Called at the very beginning)
 load_css(st.session_state.theme)
 
 
-# --- API Key و تنظیمات مدل ---
+# --- API Key and Model Settings ---
 try:
     google_api_key = st.secrets["GOOGLE_API_KEY"]
 except KeyError: # Changed from AttributeError to KeyError for secrets
@@ -77,7 +76,18 @@ def load_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {"users": [], "admin_users": []}
+    # Create default users.json if not exists
+    default_users = {
+        "users": [
+            {"username": "Sepahan", "password": "Arian", "creation_time": datetime.now().isoformat()}
+        ],
+        "admin_users": [
+            {"username": "admin_sepahan", "password": "Arian", "creation_time": datetime.now().isoformat()}
+        ]
+    }
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(default_users, f, indent=4)
+    return default_users
 
 def save_users(users_data):
     with open(USERS_FILE, "w", encoding="utf-8") as f:
@@ -156,7 +166,7 @@ def list_users_local():
     return all_users
 
 
-# --- PDF Processing Function (همان قبلی) ---
+# --- PDF Processing Function ---
 def process_pdf_for_rag(pdf_file, source_name):
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
@@ -191,7 +201,7 @@ def load_knowledge_base_local(api_key, model_name="models/text-embedding-004"):
         try:
             loader = PyPDFLoader(pdf_file_path_static)
             all_documents_for_rag.extend(loader.load())
-            st.success("✔️ فایل 'company_knowledge.pdf' با موفقیت بارگذاری شد.")
+            # Removed success message here
         except Exception as e:
             st.error(f"🚨 خطای بحرانی در خواندن فایل 'company_knowledge.pdf': {e}. لطفاً فایل را بررسی کنید.")
             return None, []
@@ -301,7 +311,7 @@ def user_chat_page():
         "یک فایل PDF یا تصویر (JPG, PNG) برای افزودن به سوال فعلی آپلود کنید.",
         type=["pdf", "jpg", "jpeg", "png"],
         key="user_context_uploader",
-        help="این فایل فقط برای پاسخ به سوال فعلی استفاده می‌شود و به پایگاه دانش دائمی اضافه نمی‌شود."
+        # Removed the help text for cleaner UI, as requested indirectly by "too ugly"
     )
 
     # --- Connect to Google Gemini LLM ---
@@ -367,7 +377,7 @@ def user_chat_page():
                 st.markdown(user_message_content["content"])
             elif user_message_content["type"] == "image":
                 st.image(user_message_content["content"], caption="تصویر آپلود شده", use_column_width=True)
-                st.markdown(user_message_content["text_content"])
+                st.markdown(user_message_content["text_content"]) # Display text description if available
 
         with st.chat_message("assistant"):
             with st.spinner("🚀 دستیار هوش مصنوعی در حال پردازش سوال شماست..."):
@@ -398,44 +408,3 @@ def user_chat_page():
     st.markdown("---")
     st.markdown(f"<p style='text-align: center; font-size: 13px; color: #a0a0a0;'>نسخه آزمایشی v1.0 | تاریخ: {datetime.now().strftime('%Y-%m-%d')}</p>", unsafe_allow_html=True)
     st.markdown(f"<p style='text-align: center; font-size: 13px; color: #a0a0a0;'>&copy; {datetime.now().year} گروه صنعتی سپاهان. تمامی حقوق محفوظ است.</p>", unsafe_allow_html=True)
-
-
-# --- Main App Flow Control ---
-if st.session_state.authenticated:
-    if st.session_state.is_admin:
-        admin_panel_page()
-    else:
-        user_chat_page()
-else:
-    # Login Page (common for both admin and user)
-    st.title("🔐 ورود به دستیار دانش شرکت گروه صنعتی سپاهان")
-    st.markdown("<hr style='border-top: 4px solid #FFC107; margin-bottom: 40px;'>", unsafe_allow_html=True) # Sepahan Yellow line
-    st.info("👋 به سیستم دستیار هوشمند دانش شرکت خوش آمدید. لطفاً برای دسترسی، با نام کاربری و رمز عبور خود وارد شوید.")
-
-    col1, col2, col3 = st.columns([1,2,1]) # For centering the form
-
-    with col2: # Place form in the middle column
-        login_type = st.radio("نوع ورود:", ("کاربر عادی", "مدیر سیستم"), horizontal=True)
-        
-        username = st.text_input("نام کاربری", key="login_username", help="نام کاربری پیش‌فرض: Sepahan (کاربر عادی) / admin_sepahan (مدیر)")
-        password = st.text_input("رمز عبور", type="password", key="login_password", help="رمز عبور پیش‌فرض: Arian (کاربر عادی) / Arian (مدیر)")
-
-        if st.button("ورود به سیستم 🚀"):
-            if login_type == "کاربر عادی":
-                # For regular users, attempt Firebase Auth login
-                # Changed from firebase_auth.sign_in_with_email_and_password to a local check
-                users_data = load_users()
-                if user_login_local(username, password): # Use local login function
-                    st.success("✅ ورود موفقیت‌آمیز! در حال انتقال به دستیار هوشمند...")
-                    st.rerun()
-                # Error message handled by user_login_local function
-            elif login_type == "مدیر سیستم":
-                if admin_login_local(username, password): # Use local admin login function
-                    st.success("✅ ورود مدیر موفقیت‌آمیز! در حال انتقال به پنل مدیریت...")
-                    st.rerun()
-                # Error message handled by admin_login_local function
-
-        st.caption("اگر دسترسی ندارید، لطفاً با بخش IT تماس بگیرید.")
-    
-    st.markdown("<hr style='border-top: 1px solid #e0e0e0; margin-top: 40px;'>", unsafe_allow_html=True) # Light gray line
-    st.markdown(f"<p style='text-align: center; font-size: 13px; color: #6c757d;'>&copy; {datetime.now().year} گروه صنعتی سپاهان. تمامی حقوق محفوظ است.</p>", unsafe_allow_html=True)

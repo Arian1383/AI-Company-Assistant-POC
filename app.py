@@ -418,7 +418,7 @@ else:
         login_type = st.radio("نوع ورود:", ("کاربر عادی", "مدیر سیستم"), horizontal=True)
         
         username = st.text_input("نام کاربری", key="login_username", help="نام کاربری پیش‌فرض: Sepahan (کاربر عادی) / admin_sepahan (مدیر)")
-        password = st.text_input("رمز عبور", type="password", key="login_password", help="رمز عبور پیش‌فرض: Arian (کاربر عادی) / admin_pass (مدیر)")
+        password = st.text_input("رمز عبور", type="password", key="login_password", help="رمز عبور پیش‌فرض: Arian (کاربر عادی) / Arian (مدیر)")
 
         if st.button("ورود به سیستم 🚀"):
             if login_type == "کاربر عادی":

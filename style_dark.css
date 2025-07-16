@@ -1,249 +1,171 @@
-/* General app settings for RTL and font */
-.stApp {
-    background: linear-gradient(to bottom right, #1a1a2e, #16213e); /* Dark, deep gradient background */
-    font-family: 'Vazirmatn', sans-serif; /* Modern, readable Persian font */
-    direction: rtl; /* Right-to-left for the entire app */
-    text-align: right; /* Right alignment for general text */
-    color: #e0e0e0; /* Light text color for high contrast on dark background */
+/* Import Vazirmatn font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
+
+/* --- General App Settings --- */
+body {
+    direction: rtl;
 }
 
-/* Import Vazirmatn font from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap');
+.stApp {
+    background-color: #111827; /* Deep Navy background */
+    font-family: 'Vazirmatn', sans-serif;
+    color: #D1D5DB; /* Main text color (light gray) */
+}
 
-/* Main container styling for padding and rounded corners */
+/* Hide default Streamlit elements */
 .stApp > header {
-    display: none; /* Hide default Streamlit header */
+    display: none;
 }
 .main .block-container {
-    max-width: 850px; /* Increased max-width for more content space */
-    padding: 3.5rem; /* More padding for a spacious, luxurious feel */
-    background-color: #222831; /* Dark background for main container */
-    border-radius: 25px; /* More prominent rounded corners */
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); /* Deep, striking shadow */
-    margin-top: 50px; /* Spacing from top */
-    margin-bottom: 50px; /* Spacing from bottom */
-    border: 1px solid #393e46; /* Subtle dark border */
+    max-width: 900px;
+    padding: 2rem 2.5rem;
 }
 
-/* Button styling */
+/* --- Login Page Specific Styling --- */
+.login-container {
+    max-width: 450px;
+    margin: 5rem auto;
+    padding: 3rem;
+    background-color: #1F2937; /* Darker container background */
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid #374151;
+}
+.login-title {
+    text-align: center;
+    color: #F9FAFB;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+/* --- General Component Styling --- */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: #F9FAFB; /* White/Off-white for headers */
+}
+
+/* Button Styling */
 .stButton>button {
-    background-color: #e94560; /* Sepahan Red */
-    color: white;
-    border-radius: 15px; /* Rounded corners */
-    padding: 16px 35px; /* More padding for prominent buttons */
-    font-size: 19px; /* Larger font */
-    font-weight: 700; /* Bolder font weight */
+    background-color: #FFC107; /* Sepahan Yellow - ACCENT COLOR */
+    color: #111827; /* Dark text on yellow button for contrast */
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 700;
     border: none;
     cursor: pointer;
-    transition: all 0.3s ease; /* Smooth animation */
-    box-shadow: 0 8px 20px rgba(233, 69, 96, 0.5); /* Red shadow for button */
-    display: block;
-    width: 100%;
-    margin-top: 30px; /* Spacing from top */
-    letter-spacing: 0.5px; /* Letter spacing for aesthetics */
+    transition: all 0.2s ease-in-out;
 }
 .stButton>button:hover {
-    background-color: #d83a56; /* Darker red on hover */
-    box-shadow: 0 10px 25px rgba(233, 69, 96, 0.6);
-    transform: translateY(-3px); /* Slight lift on hover */
+    background-color: #e0a800;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
 }
 .stButton>button:active {
     transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Text input styling */
-.stTextInput>div>div>input, .stFileUploader>section>div>div {
-    border-radius: 12px;
-    border: 1px solid #4a4a60; /* Dark gray border */
-    padding: 15px; /* More padding */
-    font-size: 17px;
-    direction: rtl; /* RTL for text input */
-    text-align: right; /* Right alignment for text input */
-    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3); /* Deep inner shadow */
-    background-color: #1f2530; /* Dark background for input */
-    color: #e0e0e0; /* Light text color */
+/* Text Input Styling */
+.stTextInput input, .stTextInput textarea {
+    border-radius: 10px;
+    border: 1px solid #4B5563; /* Darker border */
+    padding: 12px;
+    font-size: 15px;
+    background-color: #374151; /* Input background */
+    color: #D1D5DB; /* Light text */
+    transition: all 0.2s ease;
 }
-.stTextInput>div>div>input:focus, .stFileUploader>section>div>div:focus-within {
-    border-color: #e94560; /* Sepahan Red on focus */
-    box-shadow: 0 0 0 0.3rem rgba(233, 69, 96, 0.35); /* Red shadow on focus */
+.stTextInput input:focus, .stTextInput textarea:focus {
+    border-color: #FFC107;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.15);
 }
 .stTextInput label {
-    font-weight: 600; /* Bolder font for labels */
-    color: #e0e0e0; /* Light label color */
-    text-align: right;
-    width: 100%;
-    display: block;
-    margin-bottom: 12px; /* More spacing from bottom */
-}
-.stFileUploader label {
-    font-weight: 600; /* Bolder font for labels */
-    color: #e0e0e0; /* Light label color */
-    text-align: right;
-    width: 100%;
-    display: block;
-    margin-bottom: 12px; /* More spacing from bottom */
-}
-.stFileUploader section div div p {
-    color: #e0e0e0; /* Ensure text in file uploader is light */
+    font-weight: 500;
+    color: #9CA3AF; /* Lighter gray for labels */
+    margin-bottom: 8px;
 }
 
-/* Chat message styling */
+/* --- Chat Page Styling --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .stChatMessage {
-    border-radius: 25px; /* More rounded corners for bubbles */
-    padding: 20px 28px; /* More padding for bubbles */
-    margin-bottom: 20px; /* More spacing between messages */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.25); /* Soft, clear shadow */
-    max-width: 90%; /* Max width for message */
-    clear: both; /* Ensure correct positioning */
-    direction: rtl; /* RTL for message content */
-    line-height: 1.8; /* Line height for readability */
-    font-size: 16.5px;
-    position: relative; /* For icon positioning */
-    color: #f0f0f0; /* Light text for readability */
-}
-.stChatMessage.user {
-    background-color: #0f3460; /* Dark blue for user (Sepahan Navy) */
-    margin-right: auto; /* Right alignment */
-    margin-left: 0;
-    border-bottom-right-radius: 12px; /* Less rounded bottom-right corner for user bubble */
-}
-.stChatMessage.assistant {
-    background-color: #2c3e50; /* Dark gray for assistant */
-    margin-left: auto; /* Left alignment */
-    margin-right: 0;
-    border-bottom-left-radius: 12px; /* Less rounded bottom-left corner for assistant bubble */
-}
-/* User and assistant icons in chat bubble */
-.stChatMessage::before {
-    content: '';
-    position: absolute;
-    width: 35px; /* Larger icon size */
-    height: 35px;
-    background-size: cover;
-    border-radius: 50%;
-    top: 15px; /* Icon position */
-    box-shadow: 0 3px 8px rgba(0,0,0,0.4); /* Icon shadow */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px; /* Icon font size */
-    color: white;
-}
-.stChatMessage.user::before {
-    content: '👤'; /* User icon */
-    right: -18px; /* Icon position for RTL */
-    background-color: #FFC107; /* Sepahan Yellow */
-}
-.stChatMessage.assistant::before {
-    content: '🤖'; /* Robot icon */
-    left: -18px; /* Icon position for RTL */
-    background-color: #212529; /* Dark color for AI icon */
-}
-
-/* Spinner styling (processing) */
-.stSpinner > div > div {
-    color: #FFC107; /* Sepahan Yellow */
-    font-size: 1.6rem; /* Larger size */
-    font-weight: bold;
-}
-
-/* Alert messages styling (st.info, st.success, st.error) */
-.stAlert {
-    border-radius: 15px; /* Rounded corners */
-    padding: 22px; /* More padding */
-    direction: rtl;
-    text-align: right;
-    font-size: 16.5px;
+    border-radius: 20px;
+    padding: 16px 22px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    max-width: 85%;
+    clear: both;
     line-height: 1.6;
-    margin-bottom: 35px; /* More spacing */
-    font-weight: 400;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.25); /* Shadow for alerts */
-    color: #f0f0f0; /* Light text for alerts */
+    font-size: 16px;
+    animation: fadeIn 0.3s ease-out;
+    border: 1px solid #374151;
 }
-.stAlert.info {
-    background-color: #0f3460; /* Dark blue */
-    border-right: 8px solid #FFC107; /* Yellow border for info */
+div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-user"]) {
+    background-color: #374151; /* Dark gray-blue for user */
+    border-bottom-right-radius: 5px;
+    float: right;
 }
-.stAlert.success {
-    background-color: #28a745; /* Dark green */
-    border-right: 8px solid #20c997; /* Lighter green */
-    color: white;
-}
-.stAlert.error {
-    background-color: #dc3545; /* Dark red */
-    border-right: 8px solid #ffc107; /* Yellow for warning */
-    color: white;
+div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assistant"]) {
+    background-color: #1F2937; /* Slightly lighter than background for AI */
+    border-bottom-left-radius: 5px;
+    float: left;
 }
 
-/* Headers and titles styling */
-h1, h2, h3, h4, h5, h6 {
-    color: #212529; /* Dark color for main text */
-    text-align: right; /* Right alignment */
-    direction: rtl; /* RTL */
-    margin-bottom: 30px; /* More spacing */
-    padding-top: 15px;
-    font-weight: 800; /* Extra bold font for headers */
-    line-height: 1.3;
-    text-shadow: none; /* No text shadow on light background */
-}
-.stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-    padding-bottom: 18px; /* More padding */
-    border-bottom: 4px solid #FFC107; /* Sepahan Yellow thick border */
-    margin-bottom: 40px; /* More spacing */
+/* Chat Input Styling */
+.stChatInput {
+    background-color: #1F2937;
+    border-top: 1px solid #374151;
+    padding: 1rem 0;
 }
 
-/* Chat input container styling (bottom of page) */
-.stChatInputContainer {
-    border-top: 1px solid #e0e0e0; /* Light separator line */
-    padding-top: 30px; /* More padding */
-    padding-bottom: 20px;
-    background-color: #ffffff; /* White background */
-    box-shadow: 0 -8px 25px rgba(0,0,0,0.1); /* Light shadow above */
-    border-radius: 25px 25px 0 0; /* Rounded top corners */
-    position: sticky; /* Stick to bottom */
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100; /* Ensure it's on top */
-}
-.stChatInput>div>div>textarea {
-    border-radius: 15px; /* Rounded corners */
-    border: 1px solid #ced4da;
-    padding: 15px;
-    font-size: 17px;
-    direction: rtl;
-    text-align: right;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
-    background-color: #f8f9fa; /* Light background */
-    color: #343a40; /* Dark text */
-    resize: none; /* Prevent manual resizing */
-}
-.stChatInput>div>div>textarea:focus {
-    border-color: #FFC107; /* Yellow on focus */
-    box-shadow: 0 0 0 0.35rem rgba(255, 193, 7, 0.25);
-}
-
-/* Caption styling */
-.stCaption {
-    font-size: 14px;
-    color: #6c757d; /* Medium gray */
-    text-align: right;
-    direction: rtl;
-    margin-top: 20px;
-    line-height: 1.6;
-}
-
-/* Separator line styling */
-hr {
-    border-top: 1px solid #e0e0e0; /* Light separator line */
-    margin: 35px 0;
-}
-
-/* Column styling for centering login form */
-div[data-testid="stColumn"] {
+/* Prompt Suggestion Buttons */
+.prompt-suggestions {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+.prompt-suggestions .stButton>button {
+    background-color: #374151;
+    color: #D1D5DB;
+    font-weight: 500;
+    box-shadow: none;
+}
+.prompt-suggestions .stButton>button:hover {
+    background-color: #4B5563;
+    box-shadow: none;
+    transform: none;
+}
+
+/* --- Admin Page Styling --- */
+/* Style for tabs */
+.stTabs [data-baseweb="tab"] {
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-weight: 500;
+    color: #9CA3AF;
+}
+.stTabs [aria-selected="true"] {
+    background-color: #FFC107;
+    color: #111827;
+}
+
+/* Style for user list items */
+div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background-color: #1F2937;
+}
+/* Make delete button in admin panel red */
+div[data-testid="stHorizontalBlock"] .stButton>button {
+    background-color: #991B1B; /* Dark Red */
+    color: #F9FAFB;
+}
+div[data-testid="stHorizontalBlock"] .stButton>button:hover {
+     background-color: #7F1D1D;
+     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
 }

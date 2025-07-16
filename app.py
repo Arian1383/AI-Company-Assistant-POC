@@ -2,38 +2,35 @@ import streamlit as st
 import os
 import json
 from datetime import datetime
+import time
 
 # LangChain and AI related imports
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # --- Constants ---
 USERS_FILE = "users.json"
 FAISS_INDEX_PATH = "faiss_index"
+KNOWLEDGE_BASE_PDF = "company_knowledge.pdf"
 CSS_FILE = "style.css"
 
 # --- Page Configuration (MUST be the first Streamlit command) ---
 st.set_page_config(
     page_title="دستیار دانش سپاهان",
-    page_icon="⚙️",  # More stable icon
+    page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # --- Session State Initialization ---
 def initialize_session_state():
-    """Initializes session state variables if they don't exist."""
     defaults = {
-        "initialized": True,
-        "current_page": "login",
-        "authenticated": False,
-        "is_admin": False,
-        "user_id": None,
-        "theme": "light",
-        "messages": [
-            {"role": "assistant", "content": "سلام! من دستیار هوشمند گروه صنعتی سپاهان هستم. چطور می‌توانم به شما کمک کنم؟"}
-        ]
+        "initialized": True, "current_page": "login", "authenticated": False,
+        "is_admin": False, "user_id": None, "theme": "light",
+        "messages": [{"role": "assistant", "content": "سلام! من دستیار هوشمند گروه صنعتی سپاهان هستم. چطور می‌توانم به شما کمک کنم؟"}]
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -43,18 +40,10 @@ initialize_session_state()
 
 # --- CSS and Theme Management ---
 def load_and_inject_css():
-    """Reads the CSS file and injects it into the app."""
     if os.path.exists(CSS_FILE):
         with open(CSS_FILE, "r", encoding="utf-8") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    
-    # This is a trick to apply theme class to the body. It might not be perfect but works.
-    st.markdown(f"""
-        <script>
-            document.body.classList.remove('light-theme', 'dark-theme');
-            document.body.classList.add('{st.session_state.theme}-theme');
-        </script>
-    """, unsafe_allow_html=True)
+    st.markdown(f'<div id="theme-setter" class="{st.session_state.theme}-theme"></div>', unsafe_allow_html=True)
 
 load_and_inject_css()
 
@@ -65,13 +54,13 @@ except KeyError:
     st.error("🔑 خطای کلید API: کلید Google Gemini پیدا نشد. لطفاً آن را در Streamlit Secrets تنظیم کنید.")
     st.stop()
 
-# --- CORE LOGIC (Authentication, User Management, Knowledge Base) ---
+# --- CORE LOGIC ---
 
 def load_users():
     if not os.path.exists(USERS_FILE):
         default_users = {
-            "users": [{"username": "Sepahan", "password": "Arian", "creation_time": datetime.now().isoformat()}],
-            "admin_users": [{"username": "admin_sepahan", "password": "admin_pass", "creation_time": datetime.now().isoformat()}]
+            "users": [{"username": "Sepahan", "password": "Arian"}],
+            "admin_users": [{"username": "admin_sepahan", "password": "admin_pass"}]
         }
         with open(USERS_FILE, "w", encoding="utf-8") as f:
             json.dump(default_users, f, indent=4)
@@ -92,16 +81,15 @@ def validate_credentials(username, password, is_admin=False):
     st.error("❌ نام کاربری یا رمز عبور اشتباه است.")
 
 def logout():
-    current_theme = st.session_state.theme
+    theme = st.session_state.theme
     st.session_state.clear()
     initialize_session_state()
-    st.session_state.theme = current_theme
+    st.session_state.theme = theme
     st.rerun()
 
 @st.cache_resource(ttl=3600)
 def load_knowledge_base_from_index(_api_key):
-    if not os.path.exists(FAISS_INDEX_PATH):
-        return None
+    if not os.path.exists(FAISS_INDEX_PATH): return None
     try:
         embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=_api_key)
         return FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
@@ -109,13 +97,32 @@ def load_knowledge_base_from_index(_api_key):
         st.error(f"🚨 خطایی در بارگذاری پایگاه دانش رخ داد: {e}")
         return None
 
+def rebuild_knowledge_base(pdf_file_bytes):
+    """Saves the uploaded PDF and rebuilds the FAISS index."""
+    with open(KNOWLEDGE_BASE_PDF, "wb") as f:
+        f.write(pdf_file_bytes)
+    
+    loader = PyPDFLoader(KNOWLEDGE_BASE_PDF)
+    documents = loader.load()
+    
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    chunks = text_splitter.split_documents(documents)
+    
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=google_api_key)
+    vector_store = FAISS.from_documents(chunks, embeddings)
+    vector_store.save_local(FAISS_INDEX_PATH)
+    
+    # Clear the cache to force reload of the new index
+    st.cache_resource.clear()
+
 # --- UI RENDERING FUNCTIONS ---
 
 def render_login_page():
-    # Use columns for robust centering
-    _, center_col, _ = st.columns([1, 1.5, 1])
+    _, center_col, _ = st.columns([1, 1.2, 1])
     with center_col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        # You can add a logo here if you have one. Example:
+        # st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Sepahan_S.C._logo.svg/1200px-Sepahan_S.C._logo.svg.png", width=100)
         st.markdown('<h2 class="login-title">ورود به دستیار هوشمند</h2>', unsafe_allow_html=True)
         
         login_tab, admin_tab = st.tabs(["ورود کاربر", "ورود مدیر"])
@@ -133,38 +140,56 @@ def render_login_page():
                     validate_credentials(admin_username, admin_password, is_admin=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
+def render_admin_page():
+    st.sidebar.title(f"پنل مدیریت")
+    st.sidebar.caption(f"کاربر: {st.session_state.user_id}")
+    st.sidebar.button("خروج", on_click=logout, use_container_width=True)
+
+    st.title("🛠️ مدیریت سیستم")
+    st.markdown("---")
+    
+    st.subheader("📚 مدیریت پایگاه دانش")
+    st.info("در این بخش می‌توانید فایل PDF اصلی پایگاه دانش را جایگزین و سیستم را به‌روزرسانی کنید.")
+    
+    uploaded_file = st.file_uploader(
+        "فایل PDF جدید را بارگذاری کنید",
+        type="pdf",
+        help="فایل جدید جایگزین فایل قبلی خواهد شد."
+    )
+    
+    if uploaded_file is not None:
+        if st.button("🚀 به‌روزرسانی پایگاه دانش", use_container_width=True):
+            with st.spinner("لطفاً صبر کنید... در حال پردازش فایل و بازسازی پایگاه دانش. این فرآیند ممکن است چند دقیقه طول بکشد."):
+                try:
+                    pdf_bytes = uploaded_file.getvalue()
+                    rebuild_knowledge_base(pdf_bytes)
+                    time.sleep(2) # Give a moment for user to see the message
+                    st.success("✅ پایگاه دانش با موفقیت به‌روزرسانی شد!")
+                    st.balloons()
+                except Exception as e:
+                    st.error(f"❌ خطایی در هنگام به‌روزرسانی رخ داد: {e}")
+
 def render_chat_page():
-    # --- Sidebar ---
     with st.sidebar:
         st.title(f"کاربر: {st.session_state.user_id}")
-        
-        # Theme toggle
-        current_theme_is_dark = st.session_state.theme == "dark"
-        if st.toggle("فعال‌سازی تم تیره 🌙", value=current_theme_is_dark):
+        is_dark = st.session_state.theme == "dark"
+        if st.toggle("فعال‌سازی تم تیره 🌙", value=is_dark):
             st.session_state.theme = "dark"
         else:
             st.session_state.theme = "light"
-
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
-    # --- Main Chat Area ---
     st.title("🧠 دستیار دانش سپاهان")
-    chat_container = st.container()
+    
+    chat_container = st.container(height=600) # Set a fixed height for scrollable chat
     with chat_container:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    # --- Prompt Input ---
     if prompt := st.chat_input("سوال خود را بپرسید..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        # Immediately show user message
-        with chat_container:
-             with st.chat_message("user"):
-                st.markdown(prompt)
-
-        # Process and show assistant response
         with st.chat_message("assistant"):
             with st.spinner("🚀 در حال پردازش..."):
                 vector_store = load_knowledge_base_from_index(google_api_key)
@@ -176,15 +201,16 @@ def render_chat_page():
                         full_response = response.get("result", "متاسفانه پاسخی یافت نشد.")
                     except Exception:
                         full_response = "⚠️ متاسفانه مشکلی در پردازش درخواست شما پیش آمده است."
-                    st.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    st.rerun() # Rerun to display the new messages
                 else:
                     st.error("خطا در اتصال به پایگاه دانش.")
-                    st.session_state.messages.append({"role": "assistant", "content": "خطا در اتصال به پایگاه دانش."})
-        st.rerun()
 
 # --- Main App Router ---
 if st.session_state.get("authenticated"):
-    render_chat_page() # Simplified: admin check can be added later if needed
+    if st.session_state.get("is_admin"):
+        render_admin_page()
+    else:
+        render_chat_page()
 else:
     render_login_page()

@@ -1,41 +1,40 @@
 /* --- THEME DEFINITIONS --- */
 :root {
-    /* Light Theme Colors */
-    --bg-color: #F0F2F6;
-    --secondary-bg-color: #FFFFFF;
-    --text-color: #1c1c1e;
+    --bg-color: #f0f2f5;
+    --secondary-bg-color: #ffffff;
+    --text-color: #050505;
     --header-color: #000000;
-    --subtle-text-color: #555555;
-    --border-color: #dce1e8;
+    --subtle-text-color: #65676b;
+    --border-color: #ced0d4;
     --accent-color: #FFC107; /* Sepahan Yellow */
-    --accent-text-color: #1c1c1e;
-    --user-msg-bg: #FFF2CC;
+    --accent-text-color: #050505;
+    --user-msg-bg: #FFF3CD;
     --assistant-msg-bg: #FFFFFF;
-    --shadow-color: rgba(0, 0, 0, 0.08);
-    --input-bg: #FFFFFF;
-    --input-border: #cccccc;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --input-bg: #f0f2f5;
+    --input-border: #ccd0d5;
 }
 
 body.dark-theme {
-    /* Dark Theme Colors */
-    --bg-color: #0d1117;
-    --secondary-bg-color: #161b22;
-    --text-color: #c9d1d9;
-    --header-color: #f0f6fc;
-    --subtle-text-color: #8b949e;
-    --border-color: #30363d;
+    --bg-color: #18191a;
+    --secondary-bg-color: #242526;
+    --text-color: #e4e6eb;
+    --header-color: #ffffff;
+    --subtle-text-color: #b0b3b8;
+    --border-color: #3a3b3c;
     --accent-color: #FFC107; /* Sepahan Yellow */
-    --accent-text-color: #0d1117;
-    --user-msg-bg: #21262d;
-    --assistant-msg-bg: #161b22;
-    --shadow-color: rgba(0, 0, 0, 0.4);
-    --input-bg: #0d1117;
-    --input-border: #30363d;
+    --accent-text-color: #18191a;
+    --user-msg-bg: #3a3b3c;
+    --assistant-msg-bg: #242526;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --input-bg: #3a3b3c;
+    --input-border: #4e4f50;
 }
 
 /* --- GENERAL APP STYLING --- */
 body {
     direction: rtl;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .stApp {
@@ -58,6 +57,7 @@ body {
     border-radius: 16px;
     box-shadow: 0 8px 25px var(--shadow-color);
     border: 1px solid var(--border-color);
+    animation: fadeIn 0.5s ease-out;
 }
 .login-title {
     text-align: center;
@@ -73,7 +73,7 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     background-color: var(--accent-color);
     color: var(--accent-text-color);
     border-radius: 10px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 16px;
     font-weight: 600;
     border: none;
@@ -81,8 +81,11 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     transition: all 0.2s ease-in-out;
 }
 .stButton>button:hover {
+    transform: scale(1.03);
     filter: brightness(95%);
-    transform: translateY(-1px);
+}
+.stButton>button:active {
+    transform: scale(0.98);
 }
 
 .stTextInput input, .stTextInput textarea {
@@ -92,6 +95,7 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     font-size: 15px;
     background-color: var(--input-bg);
     color: var(--text-color);
+    transition: all 0.2s ease;
 }
 .stTextInput input:focus, .stTextInput textarea:focus {
     border-color: var(--accent-color);
@@ -129,7 +133,7 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     max-width: 85%;
     line-height: 1.6;
     font-size: 16px;
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.4s ease-out;
     border: 1px solid var(--border-color);
 }
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-user"]) {
@@ -149,4 +153,5 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
 .stSidebar {
     background-color: var(--secondary-bg-color);
     border-left: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
 }

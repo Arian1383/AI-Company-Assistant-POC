@@ -1,51 +1,81 @@
+/* --- FONT & THEME DEFINITIONS --- */
+:root {
+    /* Light Theme Colors */
+    --bg-color: #F7F9FC;
+    --secondary-bg-color: #FFFFFF;
+    --container-bg-color: #FFFFFF;
+    --text-color: #262730;
+    --header-color: #1E2022;
+    --subtle-text-color: #5A5A5A;
+    --border-color: #EAECEF;
+    --accent-color: #FFC107; /* Sepahan Yellow */
+    --accent-text-color: #212529;
+    --user-msg-bg: #FFF2CC;
+    --assistant-msg-bg: #FFFFFF;
+    --shadow-color: rgba(0, 0, 0, 0.07);
+    --input-bg: #FFFFFF;
+    --input-border: #DCDFE4;
+}
+
+body.dark-theme {
+    /* Dark Theme Colors */
+    --bg-color: #111827;
+    --secondary-bg-color: #1F2937;
+    --container-bg-color: #1F2937;
+    --text-color: #D1D5DB;
+    --header-color: #F9FAFB;
+    --subtle-text-color: #9CA3AF;
+    --border-color: #374151;
+    --accent-color: #FFC107; /* Sepahan Yellow */
+    --accent-text-color: #111827;
+    --user-msg-bg: #374151;
+    --assistant-msg-bg: #1F2937;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --input-bg: #374151;
+    --input-border: #4B5563;
+}
+
+
 /* --- General App Settings --- */
 body {
     direction: rtl;
 }
 
 .stApp {
-    background-color: #F7F9FC;
-    /* --- FONT FIX: Use a system font stack --- */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    color: #262730;
+    background-color: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    color: var(--text-color);
 }
 
-/* Hide default Streamlit elements for a custom look */
-.stApp > header {
-    display: none;
-}
+.stApp > header { display: none; }
 .main .block-container {
     max-width: 900px;
-    padding: 2rem 2.5rem;
+    padding: 1rem 2rem;
 }
 
-/* --- Login Page Specific Styling --- */
+/* --- Login Page --- */
 .login-container {
     max-width: 450px;
     margin: 5rem auto;
-    padding: 3rem;
-    background-color: #FFFFFF;
+    padding: 2.5rem;
+    background-color: var(--container-bg-color);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
-    border: 1px solid #EAECEF;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    border: 1px solid var(--border-color);
 }
 .login-title {
     text-align: center;
-    color: #262730;
+    color: var(--header-color);
     font-weight: 700;
     margin-bottom: 2rem;
 }
 
-/* --- General Component Styling --- */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    color: #1E2022;
-}
+/* --- General Components --- */
+h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 
-/* Button Styling */
 .stButton>button {
-    background-color: #FFC107; /* Sepahan Yellow */
-    color: #212529;
+    background-color: var(--accent-color);
+    color: var(--accent-text-color);
     border-radius: 12px;
     padding: 12px 24px;
     font-size: 16px;
@@ -55,35 +85,33 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.2s ease-in-out;
 }
 .stButton>button:hover {
-    background-color: #e0a800;
+    filter: brightness(90%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
-}
-.stButton>button:active {
-    transform: translateY(0);
+    box-shadow: 0 4px 15px var(--shadow-color);
 }
 
-/* Text Input Styling */
 .stTextInput input, .stTextInput textarea {
     border-radius: 10px;
-    border: 1px solid #DCDFE4;
+    border: 1px solid var(--input-border);
     padding: 12px;
     font-size: 15px;
-    background-color: #FFFFFF;
-    color: #262730;
-    transition: all 0.2s ease;
+    background-color: var(--input-bg);
+    color: var(--text-color);
 }
 .stTextInput input:focus, .stTextInput textarea:focus {
-    border-color: #FFC107;
-    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 25%, transparent);
 }
 .stTextInput label {
     font-weight: 500;
-    color: #5A5A5A;
+    color: var(--subtle-text-color);
     margin-bottom: 8px;
 }
+.stTabs [data-baseweb="tab-list"] {
+    justify-content: center;
+}
 
-/* --- Chat Page Styling --- */
+/* --- Chat Page --- */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -93,66 +121,30 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 20px;
     padding: 16px 22px;
     margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 12px var(--shadow-color);
     max-width: 85%;
-    clear: both;
     line-height: 1.6;
     font-size: 16px;
     animation: fadeIn 0.3s ease-out;
 }
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-user"]) {
-    background-color: #FFFAE6; /* Light Yellow for user */
+    background-color: var(--user-msg-bg);
     border-bottom-right-radius: 5px;
-    float: right;
 }
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assistant"]) {
-    background-color: #FFFFFF;
+    background-color: var(--assistant-msg-bg);
+    border: 1px solid var(--border-color);
     border-bottom-left-radius: 5px;
-    float: left;
 }
 
-/* Chat Input Styling */
 .stChatInput {
-    background-color: #FFFFFF;
-    border-top: 1px solid #EAECEF;
+    background-color: var(--secondary-bg-color);
+    border-top: 1px solid var(--border-color);
     padding: 1rem 0;
 }
 
-/* Prompt Suggestion Buttons */
-.prompt-suggestions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 1rem;
-}
-.prompt-suggestions .stButton>button {
-    background-color: #F0F2F6;
-    color: #333;
-    font-weight: 500;
-    box-shadow: none;
-}
-.prompt-suggestions .stButton>button:hover {
-    background-color: #EAECEF;
-    box-shadow: none;
-    transform: none;
-}
-
-/* --- Admin Page Styling --- */
-/* Style for tabs */
-.stTabs [data-baseweb="tab"] {
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-weight: 500;
-}
-.stTabs [aria-selected="true"] {
-    background-color: #FFF2CC;
-    color: #262730;
-}
-
-/* Style for user list items */
-div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
-    border: 1px solid #EAECEF;
-    border-radius: 12px;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-    background-color: #FFFFFF;
+/* Sidebar Styling */
+.stSidebar {
+    background-color: var(--secondary-bg-color);
+    border-left: 1px solid var(--border-color);
 }

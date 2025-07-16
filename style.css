@@ -1,5 +1,5 @@
 /* --- THEME DEFINITIONS --- */
-:root {
+:root, body.light-theme {
     /* Light Theme Colors */
     --bg-color: #f0f2f5;
     --secondary-bg-color: #ffffff;
@@ -69,7 +69,14 @@ body {
     text-align: center;
     color: var(--header-color);
     font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.login-subtitle {
+    text-align: center;
+    color: var(--subtle-text-color);
     margin-bottom: 2rem;
+    font-size: 15px;
+    line-height: 1.6;
 }
 
 /* --- GENERAL COMPONENTS --- */
@@ -155,9 +162,24 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     padding: 1rem 0;
 }
 
-/* --- SIDEBAR --- */
+/* --- SIDEBAR & ADMIN --- */
 .stSidebar {
     background-color: var(--secondary-bg-color);
     border-left: 1px solid var(--border-color);
     transition: background-color 0.3s ease;
+}
+.user-role-badge {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.user-role-badge.role-admin {
+    background-color: color-mix(in srgb, var(--accent-color) 30%, transparent);
+    color: var(--accent-text-color);
+}
+.user-role-badge.role-عادی {
+    background-color: var(--input-bg);
+    color: var(--subtle-text-color);
+    border: 1px solid var(--border-color);
 }

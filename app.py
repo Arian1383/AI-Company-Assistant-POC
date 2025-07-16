@@ -142,8 +142,6 @@ def load_knowledge_base_from_index(api_key):
 # --- UI Rendering ---
 def render_login_page():
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    # You can add a logo here if you have one
-    # st.image("path/to/your/logo.png", width=150) 
     st.markdown('<h2 class="login-title">ورود به دستیار هوشمند سپاهان</h2>', unsafe_allow_html=True)
     
     login_tab, admin_tab = st.tabs(["ورود کاربر", "ورود مدیر"])
@@ -189,7 +187,7 @@ def render_admin_panel():
                 cols[0].write(f"**نام کاربری:** {user['username']}")
                 user_type = "مدیر" if user in users.get("admin_users", []) else "عادی"
                 cols[1].write(f"**نوع:** {user_type}")
-                if user['username'] != st.session_state.user_id: # Prevent self-deletion
+                if user['username'] != st.session_state.user_id:
                     if cols[2].button("حذف", key=f"del_{user['username']}", use_container_width=True):
                         delete_user(user['username'])
 
@@ -214,13 +212,11 @@ def render_chat_page():
         st.session_state.theme = "light"
     st.sidebar.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
-    # Main chat container
     with st.container():
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"]["content"])
 
-    # Prompt suggestions
     st.markdown('<div class="prompt-suggestions">', unsafe_allow_html=True)
     cols = st.columns(3)
     suggestions = ["نحوه درخواست مرخصی", "ساعت کاری شرکت", "پشتیبانی IT"]
@@ -230,7 +226,6 @@ def render_chat_page():
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Handle chat input
     prompt = st.chat_input("سوال خود را بپرسید...", key="chat_input")
     if "prompt" in st.session_state and st.session_state.prompt:
         prompt = st.session_state.prompt

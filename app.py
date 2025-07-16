@@ -22,15 +22,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- FONT LOADER (FIX) ---
-# Inject Google Fonts link directly into the HTML head
-st.markdown("""
-    <head>
-        <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
-    </head>
-""", unsafe_allow_html=True)
-
-
 # --- Initialize session state variables safely ---
 def initialize_session_state():
     if "initialized" not in st.session_state:

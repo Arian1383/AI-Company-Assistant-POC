@@ -17,10 +17,19 @@ FAISS_INDEX_PATH = "faiss_index"
 # --- Page Configuration (MUST be the first Streamlit command) ---
 st.set_page_config(
     page_title="دستیار دانش سپاهان",
-    page_icon="🤖", # Changed icon
-    layout="wide", # Use wide layout for better control
+    page_icon="🤖",
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# --- FONT LOADER (FIX) ---
+# Inject Google Fonts link directly into the HTML head
+st.markdown("""
+    <head>
+        <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    </head>
+""", unsafe_allow_html=True)
+
 
 # --- Initialize session state variables safely ---
 def initialize_session_state():

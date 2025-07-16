@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: langchain-google-genai
-Version: 2.1.7
+Version: 2.1.8
 Summary: An integration package connecting Google's genai package and LangChain
 Home-page: https://github.com/langchain-ai/langchain-google
 License: MIT

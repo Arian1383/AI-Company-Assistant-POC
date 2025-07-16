@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: langchain-core
-Version: 0.3.68
+Version: 0.3.69
 Summary: Building applications with LLMs through composability
 License: MIT
 Project-URL: Source Code, https://github.com/langchain-ai/langchain/tree/master/libs/core
@@ -11,8 +11,8 @@ Requires-Dist: langsmith>=0.3.45
 Requires-Dist: tenacity!=8.4.0,<10.0.0,>=8.1.0
 Requires-Dist: jsonpatch<2.0,>=1.33
 Requires-Dist: PyYAML>=5.3
-Requires-Dist: packaging<25,>=23.2
 Requires-Dist: typing-extensions>=4.7
+Requires-Dist: packaging>=23.2
 Requires-Dist: pydantic>=2.7.4
 Description-Content-Type: text/markdown
 

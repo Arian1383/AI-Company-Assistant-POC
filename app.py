@@ -43,7 +43,14 @@ def load_and_inject_css():
     if os.path.exists(CSS_FILE):
         with open(CSS_FILE, "r", encoding="utf-8") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    st.markdown(f'<div id="theme-setter" class="{st.session_state.theme}-theme"></div>', unsafe_allow_html=True)
+    
+    # This is a trick to apply theme class to the body.
+    st.markdown(f"""
+        <script>
+            document.body.classList.remove('light-theme', 'dark-theme');
+            document.body.classList.add('{st.session_state.theme}-theme');
+        </script>
+    """, unsafe_allow_html=True)
 
 load_and_inject_css()
 
@@ -121,8 +128,6 @@ def render_login_page():
     _, center_col, _ = st.columns([1, 1.2, 1])
     with center_col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        # You can add a logo here if you have one. Example:
-        # st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Sepahan_S.C._logo.svg/1200px-Sepahan_S.C._logo.svg.png", width=100)
         st.markdown('<h2 class="login-title">ورود به دستیار هوشمند</h2>', unsafe_allow_html=True)
         
         login_tab, admin_tab = st.tabs(["ورود کاربر", "ورود مدیر"])
@@ -181,7 +186,8 @@ def render_chat_page():
 
     st.title("🧠 دستیار دانش سپاهان")
     
-    chat_container = st.container(height=600) # Set a fixed height for scrollable chat
+    # Use a container with a fixed height to make it scrollable
+    chat_container = st.container(height=500)
     with chat_container:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):

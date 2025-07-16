@@ -16,7 +16,7 @@ CSS_FILE = "style.css"
 # --- Page Configuration (MUST be the first Streamlit command) ---
 st.set_page_config(
     page_title="دستیار دانش سپاهان",
-    page_icon="🤖",
+    page_icon="⚙️",  # More stable icon
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -47,11 +47,14 @@ def load_and_inject_css():
     if os.path.exists(CSS_FILE):
         with open(CSS_FILE, "r", encoding="utf-8") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    else:
-        st.warning(f"⚠️ فایل '{CSS_FILE}' پیدا نشد.")
     
-    # Inject a class to the body based on the theme for CSS to target
-    st.markdown(f'<body class="{st.session_state.theme}-theme"></body>', unsafe_allow_html=True)
+    # This is a trick to apply theme class to the body. It might not be perfect but works.
+    st.markdown(f"""
+        <script>
+            document.body.classList.remove('light-theme', 'dark-theme');
+            document.body.classList.add('{st.session_state.theme}-theme');
+        </script>
+    """, unsafe_allow_html=True)
 
 load_and_inject_css()
 
@@ -75,10 +78,6 @@ def load_users():
         return default_users
     with open(USERS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
-
-def save_users(users_data):
-    with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(users_data, f, indent=4)
 
 def validate_credentials(username, password, is_admin=False):
     users_data = load_users()
@@ -113,35 +112,43 @@ def load_knowledge_base_from_index(_api_key):
 # --- UI RENDERING FUNCTIONS ---
 
 def render_login_page():
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    st.markdown('<h2 class="login-title">ورود به دستیار هوشمند سپاهان</h2>', unsafe_allow_html=True)
-    
-    login_tab, admin_tab = st.tabs(["ورود کاربر", "ورود مدیر"])
-    with login_tab:
-        with st.form("user_login_form"):
-            username = st.text_input("نام کاربری", placeholder="نام کاربری خود را وارد کنید")
-            password = st.text_input("رمز عبور", type="password", placeholder="رمز عبور خود را وارد کنید")
-            if st.form_submit_button("ورود", use_container_width=True):
-                validate_credentials(username, password, is_admin=False)
-    with admin_tab:
-        with st.form("admin_login_form"):
-            admin_username = st.text_input("نام کاربری مدیر", placeholder="نام کاربری ادمین")
-            admin_password = st.text_input("رمز عبور مدیر", type="password", placeholder="رمز عبور ادمین")
-            if st.form_submit_button("ورود مدیر", use_container_width=True):
-                validate_credentials(admin_username, admin_password, is_admin=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Use columns for robust centering
+    _, center_col, _ = st.columns([1, 1.5, 1])
+    with center_col:
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        st.markdown('<h2 class="login-title">ورود به دستیار هوشمند</h2>', unsafe_allow_html=True)
+        
+        login_tab, admin_tab = st.tabs(["ورود کاربر", "ورود مدیر"])
+        with login_tab:
+            with st.form("user_login_form"):
+                username = st.text_input("نام کاربری", placeholder="نام کاربری خود را وارد کنید")
+                password = st.text_input("رمز عبور", type="password", placeholder="رمز عبور خود را وارد کنید")
+                if st.form_submit_button("ورود", use_container_width=True):
+                    validate_credentials(username, password, is_admin=False)
+        with admin_tab:
+            with st.form("admin_login_form"):
+                admin_username = st.text_input("نام کاربری مدیر", placeholder="نام کاربری ادمین")
+                admin_password = st.text_input("رمز عبور مدیر", type="password", placeholder="رمز عبور ادمین")
+                if st.form_submit_button("ورود مدیر", use_container_width=True):
+                    validate_credentials(admin_username, admin_password, is_admin=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 def render_chat_page():
     # --- Sidebar ---
     with st.sidebar:
         st.title(f"کاربر: {st.session_state.user_id}")
-        if st.toggle("فعال‌سازی تم تیره 🌙", key="theme_toggle", value=(st.session_state.theme == "dark")):
+        
+        # Theme toggle
+        current_theme_is_dark = st.session_state.theme == "dark"
+        if st.toggle("فعال‌سازی تم تیره 🌙", value=current_theme_is_dark):
             st.session_state.theme = "dark"
         else:
             st.session_state.theme = "light"
+
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
     # --- Main Chat Area ---
+    st.title("🧠 دستیار دانش سپاهان")
     chat_container = st.container()
     with chat_container:
         for message in st.session_state.messages:
@@ -151,10 +158,13 @@ def render_chat_page():
     # --- Prompt Input ---
     if prompt := st.chat_input("سوال خود را بپرسید..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Immediately show user message
         with chat_container:
-            with st.chat_message("user"):
+             with st.chat_message("user"):
                 st.markdown(prompt)
 
+        # Process and show assistant response
         with st.chat_message("assistant"):
             with st.spinner("🚀 در حال پردازش..."):
                 vector_store = load_knowledge_base_from_index(google_api_key)
@@ -164,8 +174,8 @@ def render_chat_page():
                         qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vector_store.as_retriever())
                         response = qa_chain.invoke({"query": prompt})
                         full_response = response.get("result", "متاسفانه پاسخی یافت نشد.")
-                    except Exception as e:
-                        full_response = f"⚠️ متاسفانه مشکلی در پردازش درخواست شما پیش آمده است."
+                    except Exception:
+                        full_response = "⚠️ متاسفانه مشکلی در پردازش درخواست شما پیش آمده است."
                     st.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
                 else:
@@ -175,11 +185,6 @@ def render_chat_page():
 
 # --- Main App Router ---
 if st.session_state.get("authenticated"):
-    if st.session_state.get("is_admin"):
-        # Placeholder for admin page if you want to add it back
-        st.title("Admin Page")
-        st.sidebar.button("خروج", on_click=logout)
-    else:
-        render_chat_page()
+    render_chat_page() # Simplified: admin check can be added later if needed
 else:
     render_login_page()

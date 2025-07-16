@@ -1,42 +1,39 @@
-/* --- FONT & THEME DEFINITIONS --- */
+/* --- THEME DEFINITIONS --- */
 :root {
     /* Light Theme Colors */
-    --bg-color: #F7F9FC;
+    --bg-color: #F0F2F6;
     --secondary-bg-color: #FFFFFF;
-    --container-bg-color: #FFFFFF;
-    --text-color: #262730;
-    --header-color: #1E2022;
-    --subtle-text-color: #5A5A5A;
-    --border-color: #EAECEF;
+    --text-color: #1c1c1e;
+    --header-color: #000000;
+    --subtle-text-color: #555555;
+    --border-color: #dce1e8;
     --accent-color: #FFC107; /* Sepahan Yellow */
-    --accent-text-color: #212529;
+    --accent-text-color: #1c1c1e;
     --user-msg-bg: #FFF2CC;
     --assistant-msg-bg: #FFFFFF;
-    --shadow-color: rgba(0, 0, 0, 0.07);
+    --shadow-color: rgba(0, 0, 0, 0.08);
     --input-bg: #FFFFFF;
-    --input-border: #DCDFE4;
+    --input-border: #cccccc;
 }
 
 body.dark-theme {
     /* Dark Theme Colors */
-    --bg-color: #111827;
-    --secondary-bg-color: #1F2937;
-    --container-bg-color: #1F2937;
-    --text-color: #D1D5DB;
-    --header-color: #F9FAFB;
-    --subtle-text-color: #9CA3AF;
-    --border-color: #374151;
+    --bg-color: #0d1117;
+    --secondary-bg-color: #161b22;
+    --text-color: #c9d1d9;
+    --header-color: #f0f6fc;
+    --subtle-text-color: #8b949e;
+    --border-color: #30363d;
     --accent-color: #FFC107; /* Sepahan Yellow */
-    --accent-text-color: #111827;
-    --user-msg-bg: #374151;
-    --assistant-msg-bg: #1F2937;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --input-bg: #374151;
-    --input-border: #4B5563;
+    --accent-text-color: #0d1117;
+    --user-msg-bg: #21262d;
+    --assistant-msg-bg: #161b22;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --input-bg: #0d1117;
+    --input-border: #30363d;
 }
 
-
-/* --- General App Settings --- */
+/* --- GENERAL APP STYLING --- */
 body {
     direction: rtl;
 }
@@ -53,14 +50,13 @@ body {
     padding: 1rem 2rem;
 }
 
-/* --- Login Page --- */
-.login-container {
-    max-width: 450px;
-    margin: 5rem auto;
+/* --- LOGIN PAGE --- */
+.login-card {
+    margin-top: 4rem;
     padding: 2.5rem;
-    background-color: var(--container-bg-color);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px var(--shadow-color);
+    background-color: var(--secondary-bg-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px var(--shadow-color);
     border: 1px solid var(--border-color);
 }
 .login-title {
@@ -70,28 +66,27 @@ body {
     margin-bottom: 2rem;
 }
 
-/* --- General Components --- */
+/* --- GENERAL COMPONENTS --- */
 h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 
 .stButton>button {
     background-color: var(--accent-color);
     color: var(--accent-text-color);
-    border-radius: 12px;
-    padding: 12px 24px;
+    border-radius: 10px;
+    padding: 10px 20px;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
 .stButton>button:hover {
-    filter: brightness(90%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px var(--shadow-color);
+    filter: brightness(95%);
+    transform: translateY(-1px);
 }
 
 .stTextInput input, .stTextInput textarea {
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid var(--input-border);
     padding: 12px;
     font-size: 15px;
@@ -100,7 +95,7 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 }
 .stTextInput input:focus, .stTextInput textarea:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 25%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 .stTextInput label {
     font-weight: 500;
@@ -109,32 +104,39 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 }
 .stTabs [data-baseweb="tab-list"] {
     justify-content: center;
+    border-bottom: 2px solid var(--border-color);
+}
+.stTabs [data-baseweb="tab"] {
+    padding: 10px 15px;
+    background-color: transparent;
+}
+.stTabs [aria-selected="true"] {
+    border-bottom: 2px solid var(--accent-color);
+    color: var(--accent-color);
 }
 
-/* --- Chat Page --- */
+/* --- CHAT PAGE --- */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 .stChatMessage {
-    border-radius: 20px;
-    padding: 16px 22px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    border-radius: 18px;
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px var(--shadow-color);
     max-width: 85%;
     line-height: 1.6;
     font-size: 16px;
     animation: fadeIn 0.3s ease-out;
+    border: 1px solid var(--border-color);
 }
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-user"]) {
     background-color: var(--user-msg-bg);
-    border-bottom-right-radius: 5px;
 }
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assistant"]) {
     background-color: var(--assistant-msg-bg);
-    border: 1px solid var(--border-color);
-    border-bottom-left-radius: 5px;
 }
 
 .stChatInput {
@@ -143,7 +145,7 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     padding: 1rem 0;
 }
 
-/* Sidebar Styling */
+/* --- SIDEBAR --- */
 .stSidebar {
     background-color: var(--secondary-bg-color);
     border-left: 1px solid var(--border-color);

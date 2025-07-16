@@ -1,8 +1,8 @@
 import streamlit as st
 import os
 import json
-from datetime import datetime
 import time
+from datetime import datetime
 
 # LangChain and AI related imports
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
@@ -27,6 +27,7 @@ st.set_page_config(
 
 # --- Session State Initialization ---
 def initialize_session_state():
+    """Initializes session state variables if they don't exist."""
     defaults = {
         "initialized": True, "current_page": "login", "authenticated": False,
         "is_admin": False, "user_id": None, "theme": "light",
@@ -40,15 +41,15 @@ initialize_session_state()
 
 # --- CSS and Theme Management ---
 def load_and_inject_css():
+    """Reads the CSS file and injects it into the app."""
     if os.path.exists(CSS_FILE):
         with open(CSS_FILE, "r", encoding="utf-8") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     
-    # This is a trick to apply theme class to the body.
+    # This script applies the theme class to the body tag, which is a stable method.
     st.markdown(f"""
         <script>
-            document.body.classList.remove('light-theme', 'dark-theme');
-            document.body.classList.add('{st.session_state.theme}-theme');
+            document.body.className = '{st.session_state.theme}-theme';
         </script>
     """, unsafe_allow_html=True)
 
@@ -119,7 +120,6 @@ def rebuild_knowledge_base(pdf_file_bytes):
     vector_store = FAISS.from_documents(chunks, embeddings)
     vector_store.save_local(FAISS_INDEX_PATH)
     
-    # Clear the cache to force reload of the new index
     st.cache_resource.clear()
 
 # --- UI RENDERING FUNCTIONS ---
@@ -164,15 +164,19 @@ def render_admin_page():
     
     if uploaded_file is not None:
         if st.button("🚀 به‌روزرسانی پایگاه دانش", use_container_width=True):
-            with st.spinner("لطفاً صبر کنید... در حال پردازش فایل و بازسازی پایگاه دانش. این فرآیند ممکن است چند دقیقه طول بکشد."):
-                try:
-                    pdf_bytes = uploaded_file.getvalue()
-                    rebuild_knowledge_base(pdf_bytes)
-                    time.sleep(2) # Give a moment for user to see the message
-                    st.success("✅ پایگاه دانش با موفقیت به‌روزرسانی شد!")
-                    st.balloons()
-                except Exception as e:
-                    st.error(f"❌ خطایی در هنگام به‌روزرسانی رخ داد: {e}")
+            progress_bar = st.progress(0, text="در حال آماده‌سازی...")
+            try:
+                pdf_bytes = uploaded_file.getvalue()
+                progress_bar.progress(25, text="فایل ذخیره شد. در حال پردازش و بازسازی پایگاه دانش...")
+                rebuild_knowledge_base(pdf_bytes)
+                progress_bar.progress(100, text="عملیات با موفقیت انجام شد!")
+                time.sleep(2)
+                st.success("✅ پایگاه دانش با موفقیت به‌روزرسانی شد!")
+                st.balloons()
+                progress_bar.empty()
+            except Exception as e:
+                progress_bar.empty()
+                st.error(f"❌ خطایی در هنگام به‌روزرسانی رخ داد: {e}")
 
 def render_chat_page():
     with st.sidebar:
@@ -186,8 +190,7 @@ def render_chat_page():
 
     st.title("🧠 دستیار دانش سپاهان")
     
-    # Use a container with a fixed height to make it scrollable
-    chat_container = st.container(height=500)
+    chat_container = st.container()
     with chat_container:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
@@ -208,7 +211,7 @@ def render_chat_page():
                     except Exception:
                         full_response = "⚠️ متاسفانه مشکلی در پردازش درخواست شما پیش آمده است."
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
-                    st.rerun() # Rerun to display the new messages
+                    st.rerun()
                 else:
                     st.error("خطا در اتصال به پایگاه دانش.")
 

@@ -52,6 +52,10 @@ body {
 }
 
 /* --- LOGIN PAGE --- */
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
 .login-card {
     margin-top: 4rem;
     padding: 2.5rem;
@@ -59,7 +63,7 @@ body {
     border-radius: 16px;
     box-shadow: 0 8px 25px var(--shadow-color);
     border: 1px solid var(--border-color);
-    animation: fadeIn 0.5s ease-out;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .login-title {
     text-align: center;

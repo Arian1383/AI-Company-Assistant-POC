@@ -15,23 +15,20 @@ from langchain_core.documents import Document # Import Document here for load_kn
 # --- Global App ID (for local file naming) ---
 app_id = "sepahan-ai-assistant-local" 
 
-# --- Initialize session state variables ---
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = 'login' # صفحه پیش‌فرض ورود
-if 'authenticated' not in st.session_state:
-    st.session_state.authenticated = False
-if 'is_admin' not in st.session_state:
-    st.session_state.is_admin = False
-if 'user_id' not in st.session_state:
-    st.session_state.user_id = None
-if 'user_email' not in st.session_state: # In this version, user_email is the same as username
-    st.session_state.user_email = None
-if 'knowledge_vector_store' not in st.session_state:
-    st.session_state.knowledge_vector_store = None
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
-if 'theme' not in st.session_state:
-    st.session_state.theme = "light" # Default theme
+# --- Initialize session state variables safely ---
+default_session_state = {
+    "current_page": "login",
+    "authenticated": False,
+    "is_admin": False,
+    "user_id": None,
+    "user_email": None,
+    "knowledge_vector_store": None,
+    "messages": [],
+    "theme": "light"
+}
+for key, value in default_session_state.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
 
 
 # --- File Paths for Local Storage ---
@@ -325,8 +322,7 @@ def user_chat_page():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
+    # Session state for messages is already initialized at the top
             if message["type"] == "text":
                 st.markdown(message["content"])
             elif message["type"] == "image":

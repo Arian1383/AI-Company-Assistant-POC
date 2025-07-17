@@ -1,47 +1,35 @@
-/* --- THEME DEFINITIONS --- */
-:root, body.light-theme {
-    /* Light Theme Colors */
-    --bg-color: #f0f2f5;
-    --secondary-bg-color: #ffffff;
-    --text-color: #050505;
-    --header-color: #000000;
-    --subtle-text-color: #65676b;
-    --border-color: #ced0d4;
-    --accent-color: #FFC107; /* Sepahan Yellow */
-    --accent-text-color: #050505;
-    --user-msg-bg: #FFF3CD;
-    --assistant-msg-bg: #FFFFFF;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --input-bg: #f0f2f5;
-    --input-border: #ccd0d5;
-}
-
-body.dark-theme {
-    /* Dark Theme Colors */
-    --bg-color: #18191a;
-    --secondary-bg-color: #242526;
-    --text-color: #e4e6eb;
-    --header-color: #ffffff;
-    --subtle-text-color: #b0b3b8;
-    --border-color: #3a3b3c;
-    --accent-color: #FFC107; /* Sepahan Yellow */
-    --accent-text-color: #18191a;
-    --user-msg-bg: #3a3b3c;
-    --assistant-msg-bg: #242526;
-    --shadow-color: rgba(0, 0, 0, 0.5);
-    --input-bg: #3a3b3c;
-    --input-border: #4e4f50;
+/* --- THEME DEFINITIONS - Dark Theme --- */
+:root { /* Define variables in :root for global access */
+    --bg-color: #1a202c; /* Dark slate blue */
+    --secondary-bg-color: #2d3748; /* Slightly lighter slate blue for cards, sidebar */
+    --text-color: #e2e8f0; /* Off-white for general text */
+    --header-color: #ffffff; /* White for titles */
+    --subtle-text-color: #a0aec0; /* Light grey blue for captions, hints */
+    --border-color: #4a5568; /* Muted blue grey for borders */
+    --accent-color: #4299e1; /* A pleasant blue for accent */
+    --accent-text-color: #ffffff; /* White text on accent */
+    --user-msg-bg: #3182ce; /* A medium blue for user messages */
+    --assistant-msg-bg: #2d3748; /* Same as secondary background, for consistency */
+    --shadow-color: rgba(0, 0, 0, 0.5); /* More prominent shadow for depth */
+    --input-bg: #2d3748; /* Dark grey for input fields */
+    --input-border: #4a5568; /* Slightly lighter border for inputs */
+    --input-text-color: #e2e8f0; /* Light text for inputs - This is the key for input text color */
+    --alert-bg-info: #2a4365; /* Darker blue for info alerts */
+    --alert-border-info: #4299e1; /* Accent blue for info alert border */
+    --alert-text-info: #e2e8f0; /* Light text for info alerts */
 }
 
 /* --- GENERAL APP STYLING --- */
 body {
     direction: rtl;
     transition: background-color 0.3s ease, color 0.3s ease;
+    font-family: 'Vazirmatn', sans-serif; /* Ensure Vazirmatn is used */
+    color: var(--text-color); /* Apply base text color */
+    background-color: var(--bg-color); /* Apply base background color */
 }
 
 .stApp {
     background-color: var(--bg-color);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     color: var(--text-color);
 }
 
@@ -58,7 +46,7 @@ body {
 }
 .login-card {
     margin-top: 4rem;
-    padding: 2.5rem;
+    padding: 1.5rem 2.5rem; /* Reduced top padding here */
     background-color: var(--secondary-bg-color);
     border-radius: 16px;
     box-shadow: 0 8px 25px var(--shadow-color);
@@ -77,6 +65,23 @@ body {
     margin-bottom: 2rem;
     font-size: 15px;
     line-height: 1.6;
+}
+
+.theme-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.theme-selector .stButton > button {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+}
+.theme-selector .stButton > button:hover {
+    background-color: var(--accent-color);
+    color: var(--accent-text-color);
+    border-color: var(--accent-color);
 }
 
 /* --- GENERAL COMPONENTS --- */
@@ -107,7 +112,7 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     padding: 12px;
     font-size: 15px;
     background-color: var(--input-bg);
-    color: var(--text-color);
+    color: var(--input-text-color); /* This ensures text inside inputs is light */
     transition: all 0.2s ease;
 }
 .stTextInput input:focus, .stTextInput textarea:focus, .stFileUploader > section:focus-within {
@@ -126,10 +131,19 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 .stTabs [data-baseweb="tab"] {
     padding: 10px 15px;
     background-color: transparent;
+    color: var(--subtle-text-color); /* Default tab text color */
 }
 .stTabs [aria-selected="true"] {
     border-bottom: 2px solid var(--accent-color);
     color: var(--accent-color);
+    font-weight: 600;
+}
+
+.stAlert {
+    background-color: var(--alert-bg-info);
+    border-left: 5px solid var(--alert-border-info);
+    color: var(--alert-text-info);
+    border-radius: 8px;
 }
 
 /* --- CHAT PAGE --- */
@@ -151,9 +165,13 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 }
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-user"]) {
     background-color: var(--user-msg-bg);
+    margin-right: auto; /* Align user messages to the right */
+    margin-left: 0;
 }
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assistant"]) {
     background-color: var(--assistant-msg-bg);
+    margin-left: auto; /* Align assistant messages to the left */
+    margin-right: 0;
 }
 
 .stChatInput {
@@ -161,25 +179,56 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     border-top: 1px solid var(--border-color);
     padding: 1rem 0;
 }
+.chat-section-header {
+    text-align: right;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: var(--header-color);
+}
 
 /* --- SIDEBAR & ADMIN --- */
 .stSidebar {
     background-color: var(--secondary-bg-color);
     border-left: 1px solid var(--border-color);
     transition: background-color 0.3s ease;
+    padding-top: 30px;
 }
+.stSidebar .stButton > button {
+    background-color: var(--accent-color);
+    color: var(--accent-text-color);
+}
+.stSidebar .stButton > button:hover {
+    filter: brightness(90%);
+}
+
 .user-role-badge {
     padding: 4px 10px;
     border-radius: 15px;
     font-size: 12px;
     font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    min-width: 60px;
 }
-.user-role-badge.role-admin {
+.user-role-badge.role-مدیر {
     background-color: color-mix(in srgb, var(--accent-color) 30%, transparent);
     color: var(--accent-text-color);
+    border: 1px solid var(--accent-color);
 }
 .user-role-badge.role-عادی {
     background-color: var(--input-bg);
     color: var(--subtle-text-color);
     border: 1px solid var(--border-color);
+}
+
+.admin-section-info {
+    font-size: 16px;
+    color: var(--subtle-text-color);
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+/* Streamlit specific overrides for better RTL and spacing */
+div.stVerticalBlock > div:first-child {
+    padding-top: 0;
 }

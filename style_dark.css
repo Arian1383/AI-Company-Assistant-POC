@@ -2,21 +2,21 @@
 :root { /* Define variables in :root for global access */
     --bg-color: #1a202c; /* Dark slate blue */
     --secondary-bg-color: #2d3748; /* Slightly lighter slate blue for cards, sidebar */
-    --text-color: #e2e8f0; /* Off-white for general text */
-    --header-color: #ffffff; /* White for titles */
-    --subtle-text-color: #a0aec0; /* Light grey blue for captions, hints */
+    --text-color: #ffffff; /* All general text is white */
+    --header-color: #ffffff; /* All headers are white */
+    --subtle-text-color: #ffffff; /* Subtle text (captions, hints) is white */
     --border-color: #4a5568; /* Muted blue grey for borders */
-    --accent-color: #4299e1; /* A pleasant blue for accent */
-    --accent-text-color: #ffffff; /* White text on accent */
+    --accent-color: #03DAC6; /* A vibrant teal for accent */
+    --accent-text-color: #121212; /* Very dark text on accent for contrast */
     --user-msg-bg: #3182ce; /* A medium blue for user messages */
     --assistant-msg-bg: #2d3748; /* Same as secondary background, for consistency */
     --shadow-color: rgba(0, 0, 0, 0.5); /* More prominent shadow for depth */
     --input-bg: #2d3748; /* Dark grey for input fields */
     --input-border: #4a5568; /* Slightly lighter border for inputs */
-    --input-text-color: #e2e8f0; /* Light text for inputs - This is the key for input text color */
+    --input-text-color: #ffffff; /* Text inside inputs is white */
     --alert-bg-info: #2a4365; /* Darker blue for info alerts */
-    --alert-border-info: #4299e1; /* Accent blue for info alert border */
-    --alert-text-info: #e2e8f0; /* Light text for info alerts */
+    --alert-border-info: #03DAC6; /* Accent color for info alert border */
+    --alert-text-info: #ffffff; /* Light text for info alerts */
 }
 
 /* --- GENERAL APP STYLING --- */
@@ -45,8 +45,8 @@ body {
     to { opacity: 1; transform: scale(1); }
 }
 .login-card {
-    margin-top: 4rem;
-    padding: 1.5rem 2.5rem; /* Reduced top padding here */
+    margin-top: 4rem; /* Reverted margin-top for login card as logo is gone */
+    padding: 1.5rem 2.5rem;
     background-color: var(--secondary-bg-color);
     border-radius: 16px;
     box-shadow: 0 8px 25px var(--shadow-color);
@@ -61,27 +61,10 @@ body {
 }
 .login-subtitle {
     text-align: center;
-    color: var(--subtle-text-color);
+    color: var(--subtle-text-color); /* Now white */
     margin-bottom: 2rem;
     font-size: 15px;
     line-height: 1.6;
-}
-
-.theme-selector {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.theme-selector .stButton > button {
-    background-color: var(--input-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    font-weight: 500;
-}
-.theme-selector .stButton > button:hover {
-    background-color: var(--accent-color);
-    color: var(--accent-text-color);
-    border-color: var(--accent-color);
 }
 
 /* --- GENERAL COMPONENTS --- */
@@ -96,34 +79,61 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     font-weight: 600;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Added box-shadow to transition */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Default button shadow for dark theme */
 }
 .stButton>button:hover {
-    transform: scale(1.03);
-    filter: brightness(95%);
+    transform: translateY(-2px) scale(1.02); /* Slight lift and scale on hover */
+    filter: brightness(110%); /* Slightly brighter on hover for dark theme */
+    box-shadow: 0 6px 10px rgba(0,0,0,0.3); /* Enhanced shadow on hover */
 }
 .stButton>button:active {
-    transform: scale(0.98);
+    transform: translateY(0) scale(0.98); /* Press effect */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* Reduced shadow on active */
 }
 
-.stTextInput input, .stTextInput textarea, .stFileUploader > section {
+/* --- Input fields (text, password, file uploader) --- */
+/* Target specific input types and file uploader section */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+textarea,
+.stFileUploader > section {
     border-radius: 8px;
     border: 1px solid var(--input-border);
     padding: 12px;
     font-size: 15px;
-    background-color: var(--input-bg);
-    color: var(--input-text-color); /* This ensures text inside inputs is light */
+    background-color: var(--input-bg) !important; /* Force dark background */
+    color: var(--input-text-color) !important; /* Force white text */
     transition: all 0.2s ease;
 }
-.stTextInput input:focus, .stTextInput textarea:focus, .stFileUploader > section:focus-within {
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+.stFileUploader > section:focus-within {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
-.stTextInput label, .stFileUploader label {
+
+/* Explicitly target labels for text inputs, radio buttons, etc. */
+div[data-testid="stTextInput"] label,
+div[data-testid="stRadio"] label,
+div[data-testid="stFileUploader"] label,
+div[data-testid="stCheckbox"] label {
     font-weight: 500;
-    color: var(--subtle-text-color);
+    color: var(--subtle-text-color); /* Now white */
     margin-bottom: 8px;
 }
+/* Placeholder text color */
+input::placeholder,
+textarea::placeholder {
+    color: var(--subtle-text-color) !important; /* Force white placeholder */
+    opacity: 0.7; /* Make placeholder slightly less opaque than actual text */
+}
+
 .stTabs [data-baseweb="tab-list"] {
     justify-content: center;
     border-bottom: 2px solid var(--border-color);
@@ -131,12 +141,17 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 .stTabs [data-baseweb="tab"] {
     padding: 10px 15px;
     background-color: transparent;
-    color: var(--subtle-text-color); /* Default tab text color */
+    color: var(--subtle-text-color); /* Default tab text color should be white */
+    transition: all 0.2s ease; /* Added transition for tabs */
 }
 .stTabs [aria-selected="true"] {
     border-bottom: 2px solid var(--accent-color);
     color: var(--accent-color);
     font-weight: 600;
+    transform: translateY(-2px); /* Slight lift for active tab */
+}
+.stTabs [data-baseweb="tab"]:hover {
+    color: var(--accent-color); /* Highlight on hover */
 }
 
 .stAlert {
@@ -144,14 +159,31 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     border-left: 5px solid var(--alert-border-info);
     color: var(--alert-text-info);
     border-radius: 8px;
+    animation: fadeIn 0.5s ease-out; /* Added animation to alerts */
+}
+/* Ensure text inside info box is white */
+div[data-testid="stAlert"] div[data-testid="stMarkdownContainer"] {
+    color: var(--alert-text-info); /* Should be white */
 }
 
-/* --- CHAT PAGE --- */
+/* Ensure caption text is white */
+div[data-testid="stCaption"] {
+    color: var(--subtle-text-color); /* Should be white */
+}
+
+
+/* --- PAGE CONTENT ANIMATION --- */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* Apply fade-in to main content blocks of each page */
+.stApp > div > div > div.main > div:not(:first-child) { /* Target main content area, excluding the fixed toggle */
+    animation: fadeIn 0.6s ease-out;
+}
 
+
+/* --- CHAT PAGE --- */
 .stChatMessage {
     border-radius: 18px;
     padding: 14px 20px;
@@ -179,12 +211,25 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     border-top: 1px solid var(--border-color);
     padding: 1rem 0;
 }
+/* Style for the chat input text itself */
+.stChatInput input {
+    color: var(--input-text-color); /* Ensure text typed in chat input is white */
+}
+/* Style for the send button icon in chat input */
+.stChatInput button svg {
+    fill: var(--accent-color); /* Make the send icon accent color */
+    transition: fill 0.2s ease, transform 0.2s ease; /* Animation for send button icon */
+}
+.stChatInput button:hover svg {
+    transform: scale(1.1); /* Pop effect on hover */
+}
 .chat-section-header {
     text-align: right;
     margin-top: 30px;
     margin-bottom: 15px;
     color: var(--header-color);
 }
+
 
 /* --- SIDEBAR & ADMIN --- */
 .stSidebar {
@@ -217,13 +262,13 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
 }
 .user-role-badge.role-عادی {
     background-color: var(--input-bg);
-    color: var(--subtle-text-color);
+    color: var(--subtle-text-color); /* Now white */
     border: 1px solid var(--border-color);
 }
 
 .admin-section-info {
     font-size: 16px;
-    color: var(--subtle-text-color);
+    color: var(--subtle-text-color); /* Now white */
     margin-top: 20px;
     margin-bottom: 10px;
 }

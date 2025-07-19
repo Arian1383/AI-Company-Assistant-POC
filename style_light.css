@@ -39,14 +39,18 @@ body {
     padding: 1rem 2rem;
 }
 
+/* --- LOGO STYLING --- */
+/* Removed .logo-container and its img styling as logo is removed */
+
+
 /* --- LOGIN PAGE --- */
 @keyframes popIn {
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
 }
 .login-card {
-    margin-top: 4rem;
-    padding: 1.5rem 2.5rem; /* Reduced top padding here */
+    margin-top: 4rem; /* Reverted margin-top for login card as logo is gone */
+    padding: 1.5rem 2.5rem;
     background-color: var(--secondary-bg-color);
     border-radius: 16px;
     box-shadow: 0 8px 25px var(--shadow-color);
@@ -67,24 +71,6 @@ body {
     line-height: 1.6;
 }
 
-.theme-selector {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.theme-selector .stButton > button {
-    background-color: var(--input-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    font-weight: 500;
-}
-.theme-selector .stButton > button:hover {
-    background-color: var(--accent-color);
-    color: var(--accent-text-color);
-    border-color: var(--accent-color);
-}
-
-
 /* --- GENERAL COMPONENTS --- */
 h1, h2, h3 { font-weight: 700; color: var(--header-color); }
 
@@ -97,14 +83,17 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     font-weight: 600;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Added box-shadow to transition */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Default button shadow */
 }
 .stButton>button:hover {
-    transform: scale(1.03);
+    transform: translateY(-2px) scale(1.02); /* Slight lift and scale on hover */
     filter: brightness(95%);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
 }
 .stButton>button:active {
-    transform: scale(0.98);
+    transform: translateY(0) scale(0.98); /* Press effect */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Reduced shadow on active */
 }
 
 .stTextInput input, .stTextInput textarea, .stFileUploader > section {
@@ -120,11 +109,21 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     border-color: var(--accent-color);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
-.stTextInput label, .stFileUploader label {
+div[data-testid="stTextInput"] label,
+div[data-testid="stRadio"] label,
+div[data-testid="stFileUploader"] label,
+div[data-testid="stCheckbox"] label {
     font-weight: 500;
     color: var(--subtle-text-color);
     margin-bottom: 8px;
 }
+/* Placeholder text color */
+.stTextInput input::placeholder,
+.stTextInput textarea::placeholder {
+    color: var(--subtle-text-color);
+    opacity: 0.7; /* Make placeholder slightly less opaque than actual text */
+}
+
 .stTabs [data-baseweb="tab-list"] {
     justify-content: center;
     border-bottom: 2px solid var(--border-color);
@@ -133,27 +132,46 @@ h1, h2, h3 { font-weight: 700; color: var(--header-color); }
     padding: 10px 15px;
     background-color: transparent;
     color: var(--subtle-text-color); /* Default tab text color */
+    transition: all 0.2s ease; /* Added transition for tabs */
 }
 .stTabs [aria-selected="true"] {
     border-bottom: 2px solid var(--accent-color);
     color: var(--accent-color);
     font-weight: 600;
+    transform: translateY(-2px); /* Slight lift for active tab */
 }
+.stTabs [data-baseweb="tab"]:hover {
+    color: var(--accent-color); /* Highlight on hover */
+}
+
 
 .stAlert {
     background-color: var(--alert-bg-info);
     border-left: 5px solid var(--alert-border-info);
     color: var(--alert-text-info);
     border-radius: 8px;
+    animation: fadeIn 0.5s ease-out; /* Added animation to alerts */
+}
+div[data-testid="stAlert"] div[data-testid="stMarkdownContainer"] {
+    color: var(--alert-text-info);
+}
+div[data-testid="stCaption"] {
+    color: var(--subtle-text-color);
 }
 
 
-/* --- CHAT PAGE --- */
+/* --- PAGE CONTENT ANIMATION --- */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* Apply fade-in to main content blocks of each page */
+.stApp > div > div > div.main > div:not(:first-child) { /* Target main content area, excluding the fixed toggle */
+    animation: fadeIn 0.6s ease-out;
+}
 
+
+/* --- CHAT PAGE --- */
 .stChatMessage {
     border-radius: 18px;
     padding: 14px 20px;
@@ -180,6 +198,16 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     background-color: var(--secondary-bg-color);
     border-top: 1px solid var(--border-color);
     padding: 1rem 0;
+}
+.stChatInput input {
+    color: var(--input-text-color);
+}
+.stChatInput button svg {
+    fill: var(--accent-color);
+    transition: fill 0.2s ease, transform 0.2s ease; /* Animation for send button icon */
+}
+.stChatInput button:hover svg {
+    transform: scale(1.1); /* Pop effect on hover */
 }
 .chat-section-header {
     text-align: right;

@@ -20,6 +20,7 @@ FAISS_INDEX_PATH = "faiss_index"
 KNOWLEDGE_BASE_PDF = "company_knowledge.pdf"
 CSS_FILE_LIGHT = "style_light.css" # نام فایل CSS برای تم روشن
 CSS_FILE_DARK = "style_dark.css" # نام فایل CSS برای تم تیره
+# LOGO_PATH = "sepahan_logo.png" # مسیر فایل لوگو - حذف شد
 
 # --- Page Configuration (MUST be the first Streamlit command) ---
 st.set_page_config(
@@ -50,10 +51,9 @@ initialize_session_state()
 
 # --- CSS and Theme Management ---
 def set_theme(theme_name):
-    """Sets the theme in session state and reruns the app to apply CSS."""
-    if st.session_state.theme != theme_name:
-        st.session_state.theme = theme_name
-        st.rerun() # Rerun is necessary for Streamlit components to re-render with new theme context
+    """Sets the theme in session state. Streamlit will rerun automatically."""
+    st.session_state.theme = theme_name
+    # Removed st.rerun() here as it's a no-op in on_change callbacks
 
 def load_and_inject_css():
     """Reads the current theme's CSS file and injects it into the app."""
@@ -66,7 +66,6 @@ def load_and_inject_css():
         st.warning(f"⚠️ فایل CSS '{css_file_path}' پیدا نشد. لطفاً آن را در کنار 'app.py' قرار دهید.")
     
     # Inject general Streamlit overrides and font
-    # Ensure this block is correctly formatted as a Python f-string
     st.markdown(f"""
         <style>
         /* پنهان کردن هدر پیش‌فرض Streamlit و فوتر "Made with Streamlit" */
@@ -83,6 +82,86 @@ def load_and_inject_css():
     """, unsafe_allow_html=True)
 
 load_and_inject_css() # Call this after session state is initialized
+
+# --- Global Theme Switcher (positioned using CSS) ---
+# Render the toggle first, it will appear at the top of the Streamlit app content area.
+# Then, CSS will move it to the desired fixed position and style it with icons.
+is_dark_mode = st.session_state.theme == "dark"
+# The on_change callback will update the theme and rerun the app
+st.toggle("🌙", value=is_dark_mode, key="global_theme_toggle", help="تغییر تم (روشن/تیره)", label_visibility="hidden", on_change=lambda: set_theme("dark" if not is_dark_mode else "light"))
+
+# Inject CSS for positioning the global theme switcher and styling its components
+st.markdown(f"""
+    <style>
+    /* Target the st.toggle container */
+    div[data-testid="stToggle"] {{
+        position: fixed; /* Fixed position relative to viewport */
+        top: 10px;
+        left: 10px; /* Position to the left as per RTL layout */
+        z-index: 9999; /* Ensure it's on top of other content */
+        margin: 0 !important; /* Remove any default margins */
+        padding: 0 !important; /* Remove any default paddings */
+        background-color: var(--secondary-bg-color); /* Subtle background for the toggle box */
+        border-radius: 15px; /* Rounded corners for the container */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Small shadow */
+        display: flex; /* To center the actual toggle inside */
+        align-items: center;
+        justify-content: center;
+        width: 60px; /* Fixed width for the container */
+        height: 30px; /* Fixed height for the container */
+    }}
+
+    /* Style the actual toggle switch (the track and thumb) */
+    div[data-testid="stToggle"] .st-bo {{ /* This is the outer div of the toggle */
+        width: 50px; /* Adjust width */
+        height: 25px; /* Adjust height */
+        border-radius: 15px; /* Make it rounded */
+        background-color: var(--input-bg); /* Background of the toggle track */
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative; /* Needed for absolute positioning of icons */
+    }}
+    div[data-testid="stToggle"] .st-bo > div:first-child {{ /* This is the inner track/container for thumb */
+        background-color: transparent; /* Track color is handled by .st-bo background */
+        border-radius: 15px;
+    }}
+    div[data-testid="stToggle"] .st-bo > div:first-child > div:first-child {{ /* This is the thumb */
+        width: 20px; /* Thumb size */
+        height: 20px;
+        background-color: var(--accent-color); /* Accent color for thumb */
+        border-radius: 50%;
+        margin: 2px; /* Small margin to keep it within track */
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Add icon as background image */
+        background-size: 80%; /* Adjust size of icon */
+        background-repeat: no-repeat;
+        background-position: center;
+    }}
+
+    /* Sun icon for light mode (toggle unchecked) */
+    div[data-testid="stToggle"] input:not(:checked) + div > div > div {{
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23{f'{int(0.05 * 255):02x}'}{f'{int(0.05 * 255):02x}'}{f'{int(0.05 * 255):02x}'}'%3E%3Cpath d='M12 2.5a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5zM12 19.5a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5zM19.5 12a.5.5 0 01.5.5h2a.5.5 0 010 1h-2a.5.5 0 01-.5-.5v-1a.5.5 0 01.5-.5zM2.5 12a.5.5 0 01.5.5h2a.5.5 0 010 1h-2a.5.5 0 01-.5-.5v-1a.5.5 0 01.5-.5zM17.657 6.343a.5.5 0 01.354.146l1.414 1.414a.5.5 0 01-.707.707l-1.414-1.414a.5.5 0 01.353-.853zM4.929 17.657a.5.5 0 01.354.146l1.414 1.414a.5.5 0 01-.707.707l-1.414-1.414a.5.5 0 01.353-.853zM17.657 17.657a.5.5 0 01.354.146l1.414 1.414a.5.5 0 01-.707.707l-1.414-1.414a.5.5 0 01.353-.853zM4.929 6.343a.5.5 0 01.354.146l1.414 1.414a.5.5 0 01-.707.707l-1.414-1.414a.5.5 0 01.353-.853zM12 8a4 4 0 100 8 4 4 0 000-8z'/%3E%3C/svg%3E");
+        background-color: var(--accent-color); /* Yellow for sun */
+        transform: translateX(25px); /* Position to the right for light mode */
+    }}
+
+    /* Moon icon for dark mode (toggle checked) */
+    div[data-testid="stToggle"] input:checked + div > div > div {{
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23{f'{int(0.9 * 255):02x}'}{f'{int(0.9 * 255):02x}'}{f'{int(0.9 * 255):02x}'}'%3E%3Cpath d='M12.3 4.5c.3-.3.7-.5 1.1-.5h.1c.4 0 .8.2 1.1.5.3.3.5.7.5 1.1v.1c0 .4-.2.8-.5 1.1-.3.3-.7.5-1.1.5h-.1c-.4 0-.8-.2-1.1-.5-.3-.3-.5-.7-.5-1.1v-.1c0-.4.2-.8.5-1.1zM12 2a10 10 0 100 20 10 10 0 000-20zM12 4a8 8 0 110 16 8 8 0 010-16zM13 5c-3.866 0-7 3.134-7 7s3.134 7 7 7c.302 0 .598-.02.89-.06a.5.5 0 01.61.61c-.3.292-.61.573-.93.837-1.17.96-2.61 1.52-4.17 1.52-4.97 0-9-4.03-9-9s4.03-9 9-9c1.56 0 3 .56 4.17 1.52.32.264.63.545.93.837a.5.5 0 01-.61.61c-.29-.04-.58-.06-.89-.06z'/%3E%3C/svg%3E");
+        background-color: var(--accent-color); /* Teal for moon */
+        transform: translateX(0); /* Position to the left for dark mode */
+    }}
+
+    /* Hide the default Streamlit label for the toggle */
+    div[data-testid="stToggle"] label > div:last-child {{
+        display: none;
+    }}
+    </style>
+""", unsafe_allow_html=True)
+
 
 # --- API Key Management ---
 try:
@@ -116,13 +195,13 @@ def navigate_to(page_name):
     if st.session_state.current_page != page_name:
         st.session_state.page_history.append(st.session_state.current_page)
         st.session_state.current_page = page_name
-        st.rerun()
+        st.rerun() # Keep rerun here as it's a direct navigation action
 
 def go_back():
     """Navigates back to the previous page in history."""
     if st.session_state.page_history:
         st.session_state.current_page = st.session_state.page_history.pop()
-        st.rerun()
+        st.rerun() # Keep rerun here as it's a direct navigation action
     else:
         st.warning("هیچ صفحه قبلی برای بازگشت وجود ندارد.")
 
@@ -137,11 +216,11 @@ def validate_credentials(username, password, is_admin_attempt=False):
             st.session_state.authenticated = True
             st.session_state.is_admin = is_admin_attempt
             
-            # Use navigate_to for page change
+            # Use navigate_to for page change, which handles rerun
             target_page = "admin" if is_admin_attempt else "chat"
-            navigate_to(target_page) # This will handle rerunning
+            navigate_to(target_page) 
             st.success("✅ ورود موفقیت‌آمیز! در حال انتقال...")
-            time.sleep(1)
+            time.sleep(1) # Keep sleep for user experience
             return True
     st.error("❌ نام کاربری یا رمز عبور اشتباه است.")
     return False
@@ -152,7 +231,7 @@ def logout():
     st.session_state.clear()
     initialize_session_state()
     st.session_state.theme = theme_before_logout # Restore theme
-    st.rerun()
+    st.rerun() # Keep rerun here as it's a direct navigation action
 
 def create_user(username, password, is_admin):
     """Creates a new user (admin or regular)."""
@@ -170,7 +249,7 @@ def create_user(username, password, is_admin):
     save_users(users_data)
     st.success(f"✅ کاربر '{username}' با موفقیت ایجاد شد.")
     time.sleep(1)
-    st.rerun()
+    st.rerun() # Keep rerun here for immediate refresh of user list
 
 def delete_user(username_to_delete):
     """Deletes a user by username."""
@@ -186,7 +265,7 @@ def delete_user(username_to_delete):
     if deleted:
         st.success(f"✅ کاربر '{username_to_delete}' با موفقیت حذف شد.")
         time.sleep(1)
-        st.rerun()
+        st.rerun() # Keep rerun here for immediate refresh of user list
     else:
         st.warning("⚠️ کاربری با این نام کاربری یافت نشد.")
 
@@ -222,7 +301,7 @@ def rebuild_knowledge_base(pdf_file_bytes):
     loader = PyPDFLoader(KNOWLEDGE_BASE_PDF)
     documents = loader.load()
     
-    text_splitter = RecursiveCharacterText_Splitter(chunk_size=1000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200) # Corrected typo here
     chunks = text_splitter.split_documents(documents)
     
     embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=google_api_key)
@@ -234,25 +313,23 @@ def rebuild_knowledge_base(pdf_file_bytes):
 
 # --- UI RENDERING FUNCTIONS ---
 
+# def render_logo(): # Removed this function
+#     """Renders the company logo."""
+#     if os.path.exists(LOGO_PATH):
+#         st.markdown(f'<div class="logo-container">', unsafe_allow_html=True)
+#         st.image(LOGO_PATH, width=150, output_format="PNG")
+#         st.markdown(f'</div>', unsafe_allow_html=True)
+#     else:
+#         st.warning(f"⚠️ فایل لوگو '{LOGO_PATH}' پیدا نشد. لطفاً آن را در کنار 'app.py' قرار دهید.")
+
 def render_login_page():
-    """Renders the login page with theme selection."""
+    """Renders the login page."""
     _, center_col, _ = st.columns([1, 1.2, 1])
     with center_col:
-        # Removed the empty white box by removing the outer div.login-card and adjusting padding
+        # render_logo() # Removed logo call
         st.markdown('<h2 class="login-title">دستیار دانش گروه صنعتی سپاهان</h2>', unsafe_allow_html=True)
         st.markdown('<p class="login-subtitle">برای شروع، لطفاً با نام کاربری و رمز عبور خود وارد شوید. در صورت نداشتن حساب کاربری، با مدیر سیستم تماس بگیرید.</p>', unsafe_allow_html=True)
         
-        # Theme selection buttons
-        st.markdown("<div class='theme-selector'>", unsafe_allow_html=True)
-        col_light, col_dark = st.columns(2)
-        with col_light:
-            if st.button("☀️ تم روشن", key="select_light_theme", use_container_width=True):
-                set_theme("light")
-        with col_dark:
-            if st.button("🌙 تم تیره", key="select_dark_theme", use_container_width=True):
-                set_theme("dark")
-        st.markdown("</div>", unsafe_allow_html=True)
-
         login_tab, admin_tab = st.tabs(["ورود کاربر", "ورود مدیر"])
         with login_tab:
             with st.form("user_login_form"):
@@ -266,7 +343,7 @@ def render_login_page():
                 admin_password = st.text_input("رمز عبور مدیر", type="password", placeholder="رمز عبور ادمین", label_visibility="collapsed")
                 if st.form_submit_button("ورود مدیر", use_container_width=True):
                     validate_credentials(admin_username, admin_password, is_admin_attempt=True)
-        st.markdown('</div>', unsafe_allow_html=True) # This closing div was for login-card, now it's just a container
+        st.markdown('</div>', unsafe_allow_html=True) # Closing login-card div
 
 
 def render_admin_page():
@@ -274,9 +351,6 @@ def render_admin_page():
     with st.sidebar:
         st.title(f"پنل مدیریت")
         st.caption(f"کاربر: {st.session_state.user_id}")
-        is_dark = st.session_state.theme == "dark"
-        if st.toggle("فعال‌سازی تم تیره 🌙", value=is_dark, on_change=lambda: set_theme("dark" if not is_dark else "light")):
-            pass # on_change handles the theme update
         
         st.markdown("---")
         if st.session_state.page_history:
@@ -285,6 +359,7 @@ def render_admin_page():
             navigate_to("user_account")
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
+    # render_logo() # Removed logo call
     st.title("🛠️ مدیریت سیستم")
     
     admin_tabs = st.tabs(["📚 مدیریت پایگاه دانش", "👤 مدیریت کاربران", "📊 لاگ‌های سیستم"])
@@ -357,7 +432,7 @@ def render_admin_page():
         st.markdown("""
         <div style="background-color: var(--secondary-bg-color); padding: 15px; border-radius: 10px; margin-bottom: 10px; color: var(--text-color); border: 1px solid var(--border-color);">
             <p style="font-size: 14px; margin-bottom: 5px;"><strong>لاگ‌ها در این نسخه ذخیره نمی‌شوند.</strong></p>
-            <p style="font-size: 14px; margin-bottom: 0;">برای قابلیت لاگ دائمی، نیاز به اتصال به دیتابیس آنلاین (مانند Firebase Firestore) است.</p>
+            <p style="font-size: 14px; margin-bottom: 0;'>برای قابلیت لاگ دائمی، نیاز به اتصال به دیتابیس آنلاین (مانند Firebase Firestore) است.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -366,9 +441,6 @@ def render_chat_page():
     """Renders the main chat interface for regular users."""
     with st.sidebar:
         st.title(f"کاربر: {st.session_state.user_id}")
-        is_dark = st.session_state.theme == "dark"
-        if st.toggle("فعال‌سازی تم تیره 🌙", value=is_dark, on_change=lambda: set_theme("dark" if not is_dark else "light")):
-            pass # on_change handles the theme update
         
         st.markdown("---")
         if st.session_state.page_history:
@@ -377,6 +449,7 @@ def render_chat_page():
             navigate_to("user_account")
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
+    # render_logo() # Removed logo call
     st.title("🧠 دستیار دانش هوشمند شرکت سپاهان")
     st.subheader("💡 سوالات خود را در مورد دستورالعمل‌ها و رویه‌های شرکت بپرسید.")
 
@@ -468,8 +541,8 @@ def render_chat_page():
             if user_message_display["type"] == "text":
                 st.markdown(user_message_display["content"])
             elif user_message_display["type"] == "image":
-                st.image(user_message_display["content"], caption="تصویر آپلود شده", use_column_width=True)
-                st.markdown(user_message_display["text_content"])
+                st.image(user_message_content["content"], caption="تصویر آپلود شده", use_column_width=True)
+                st.markdown(user_message_content["text_content"])
 
         # Get assistant response
         with st.chat_message("assistant"):
@@ -506,14 +579,12 @@ def render_user_account_page():
     """Renders the user account management page (e.g., change password)."""
     with st.sidebar:
         st.title(f"حساب کاربری: {st.session_state.user_id}")
-        is_dark = st.session_state.theme == "dark"
-        if st.toggle("فعال‌سازی تم تیره 🌙", value=is_dark, on_change=lambda: set_theme("dark" if not is_dark else "light")):
-            pass
         st.markdown("---")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
+    # render_logo() # Removed logo call
     st.title("👤 مدیریت حساب کاربری")
     st.info(f"شما به عنوان **{st.session_state.user_id}** وارد شده‌اید.")
 
@@ -538,7 +609,7 @@ def render_user_account_page():
                                 save_users(users_data)
                                 st.success("✅ رمز عبور با موفقیت تغییر یافت.")
                                 time.sleep(1)
-                                st.rerun()
+                                st.rerun() # Keep rerun here for immediate refresh of user list
                             else:
                                 st.warning("⚠️ رمز عبور جدید حداقل باید 4 کاراکتر باشد.")
                         else:

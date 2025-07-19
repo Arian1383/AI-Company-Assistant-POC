@@ -277,11 +277,13 @@ def load_knowledge_base_from_index(_api_key):
         return None, None # Return None for both vector_store and chunks
     
     try:
-        # Using Google Generative AI Embeddings as requested
         embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=_api_key)
-        
         vector_store = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
-        return vector_store, None
+        
+        # To get the chunks, we would typically need to re-process the PDF or save chunks separately.
+        # For now, we'll just return the vector store. If chunks are needed for other purposes,
+        # they should be handled during the rebuild_knowledge_base process.
+        return vector_store, None 
     except Exception as e:
         st.error(f"🚨 خطایی در بارگذاری پایگاه دانش رخ داد: {e}")
         return None, None
@@ -299,12 +301,10 @@ def rebuild_knowledge_base(pdf_file_bytes):
     loader = PyPDFLoader(KNOWLEDGE_BASE_PDF)
     documents = loader.load()
     
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200) 
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200) # Corrected typo here
     chunks = text_splitter.split_documents(documents)
     
-    # Using Google Generative AI Embeddings as requested for rebuild
     embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=google_api_key)
-
     vector_store = FAISS.from_documents(chunks, embeddings)
     vector_store.save_local(FAISS_INDEX_PATH)
     
@@ -444,7 +444,7 @@ def render_chat_page():
     st.info("💡 من اینجا هستم تا به سوالات شما بر اساس اسناد داخلی شرکت پاسخ دهم.")
 
     # Load knowledge base (and cache it)
-    vector_store, _ = load_knowledge_base_from_index(google_api_key) # Use google_api_key
+    vector_store, _ = load_knowledge_base_from_index(google_api_key) # _ for all_chunks, not used here
 
     if vector_store is None:
         st.error("🚨 پایگاه دانش بارگذاری نشد. لطفاً با مدیر سیستم تماس بگیرید و اسناد را اضافه کنید.")
@@ -452,7 +452,7 @@ def render_chat_page():
 
     retriever = vector_store.as_retriever()
     
-    # Initialize LLMs using Google Generative AI as requested
+    # Initialize LLMs
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key)
     multimodal_llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key)
 
@@ -483,10 +483,17 @@ def render_chat_page():
                 if "text_content" in message: # Display text description if available
                     st.markdown(message["text_content"])
 
+    # Add a typing indicator placeholder
+    if st.session_state.get("is_generating_response", False):
+        with st.chat_message("assistant"):
+            st.markdown('<div class="typing-indicator"><span>.</span><span>.</span><span>.</span></div>', unsafe_allow_html=True)
+
+
     # Accept user input
     if prompt := st.chat_input("سوال خود را در مورد دستورالعمل‌ها بپرسید..."):
+        st.session_state.is_generating_response = True # Set flag when user inputs
         user_message_display = {"type": "text", "content": prompt}
-        gemini_prompt_parts = [{"text": prompt}] # Using gemini_prompt_parts as it's Google Gemini now
+        gemini_prompt_parts = [{"text": prompt}]
 
         # Handle uploaded file/image
         if user_uploaded_context_file:
@@ -532,8 +539,8 @@ def render_chat_page():
                 st.image(user_message_display["content"], caption="تصویر آپلود شده", use_column_width=True)
                 st.markdown(user_message_display["text_content"])
 
-        # Get assistant response
         with st.chat_message("assistant"):
+            # The spinner now covers the actual response generation
             with st.spinner("🚀 دستیار هوش مصنوعی در حال پردازش سوال شماست..."):
                 try:
                     full_response = ""
@@ -541,21 +548,35 @@ def render_chat_page():
                         # For image input, use multimodal_llm directly
                         raw_response = multimodal_llm.invoke(gemini_prompt_parts)
                         full_response = raw_response.content
+                    elif user_uploaded_context_file and "pdf" in user_uploaded_context_file.type:
+                        # For PDF input, still use RAG but pass the extracted text as part of the prompt
+                        # The RAG chain will also retrieve relevant docs.
+                        response = qa_chain.invoke({"query": gemini_prompt_parts[0]["text"] + "\n\n" + gemini_prompt_parts[1]["text"]})
+                        full_response = response["result"]
                     else:
-                        # For text or PDF input, use qa_chain (RAG)
-                        # The prompt for qa_chain needs to be a string. Join parts if PDF was uploaded.
-                        if len(gemini_prompt_parts) > 1 and "text" in gemini_prompt_parts[1]: # If PDF text was added
-                             response = qa_chain.invoke({"query": gemini_prompt_parts[0]["text"] + "\n\n" + gemini_prompt_parts[1]["text"]})
-                        else:
-                             response = qa_chain.invoke({"query": prompt}) # Original prompt for text-only
+                        # Standard text query with RAG
+                        response = qa_chain.invoke({"query": prompt})
                         full_response = response["result"]
 
                     st.markdown(full_response)
                 except Exception as e:
                     st.error(f"⚠️ متاسفانه در حال حاضر مشکلی در پردازش درخواست شما پیش آمده است. لطفاً لحظاتی دیگر دوباره تلاش کنید. (خطا: {e})")
-            
+                finally:
+                    st.session_state.is_generating_response = False # Reset flag after generation
+
             assistant_message_content = {"role": "assistant", "type": "text", "content": full_response}
             st.session_state.messages.append(assistant_message_content)
+        
+        # JavaScript to scroll to the bottom after new messages are added
+        st.markdown("""
+            <script>
+                var chatContainer = parent.document.querySelector('.main .block-container');
+                if (chatContainer) {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            </script>
+        """, unsafe_allow_html=True)
+
 
     st.markdown("---")
     st.markdown(f"<p style='text-align: center; font-size: 13px; color: var(--subtle-text-color);'>نسخه آزمایشی v1.0 | تاریخ: {datetime.now().strftime('%Y-%m-%d')}</p>", unsafe_allow_html=True)

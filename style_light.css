@@ -39,10 +39,6 @@ body {
     padding: 1rem 2rem;
 }
 
-/* --- LOGO STYLING --- */
-/* Removed .logo-container and its img styling as logo is removed */
-
-
 /* --- LOGIN PAGE --- */
 @keyframes popIn {
     from { opacity: 0; transform: scale(0.9); }
@@ -214,6 +210,48 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     margin-top: 30px;
     margin-bottom: 15px;
     color: var(--header-color);
+}
+
+/* Typing indicator for assistant */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align to start for RTL */
+    height: 20px; /* Adjust height as needed */
+    margin-bottom: 10px;
+}
+
+.typing-indicator span {
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    background-color: var(--subtle-text-color); /* Color of dots */
+    border-radius: 50%;
+    opacity: 0;
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 

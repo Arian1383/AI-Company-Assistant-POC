@@ -230,6 +230,48 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     color: var(--header-color);
 }
 
+/* Typing indicator for assistant */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align to start for RTL */
+    height: 20px; /* Adjust height as needed */
+    margin-bottom: 10px;
+}
+
+.typing-indicator span {
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    background-color: var(--subtle-text-color); /* Color of dots */
+    border-radius: 50%;
+    opacity: 0;
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 
 /* --- SIDEBAR & ADMIN --- */
 .stSidebar {
@@ -262,13 +304,13 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
 }
 .user-role-badge.role-عادی {
     background-color: var(--input-bg);
-    color: var(--subtle-text-color); /* Now white */
+    color: var(--subtle-text-color);
     border: 1px solid var(--border-color);
 }
 
 .admin-section-info {
     font-size: 16px;
-    color: var(--subtle-text-color); /* Now white */
+    color: var(--subtle-text-color);
     margin-top: 20px;
     margin-bottom: 10px;
 }

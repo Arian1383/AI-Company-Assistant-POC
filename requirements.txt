@@ -1,7 +1,8 @@
 streamlit
-langchain
 langchain-google-genai
 langchain-community
-pypdf
-numpy<2.0.0
 faiss-cpu
+pypdf
+python-docx
+pandas
+openpyxl # pandas depends on this for xlsx

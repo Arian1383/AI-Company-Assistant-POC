@@ -5,6 +5,8 @@ import time
 from datetime import datetime
 import base64
 import tempfile
+import docx # For Word files
+import pandas as pd # For Excel files
 
 # LangChain and AI related imports
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
@@ -17,7 +19,7 @@ from langchain_core.documents import Document # Import Document here for load_kn
 # --- Constants ---
 USERS_FILE = "users.json"
 FAISS_INDEX_PATH = "faiss_index"
-KNOWLEDGE_BASE_PDF = "company_knowledge.pdf"
+KNOWLEDGE_BASE_PDF = "company_knowledge.pdf" # This will now be a placeholder, as we'll handle multiple types
 CSS_FILE_LIGHT = "style_light.css" # نام فایل CSS برای تم روشن
 CSS_FILE_DARK = "style_dark.css" # نام فایل CSS برای تم تیره
 
@@ -351,11 +353,9 @@ def render_admin_page():
         st.caption(f"کاربر: {st.session_state.user_id}")
         
         st.markdown("---")
-        # Back to previous page button
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
-        # Back to main page button
-        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
+        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True) # New button
         
         if st.sidebar.button("⚙️ حساب کاربری من", key="my_account_btn_admin", use_container_width=True):
             navigate_to("user_account")
@@ -369,15 +369,66 @@ def render_admin_page():
         st.subheader("به‌روزرسانی پایگاه دانش")
         st.info("در این بخش می‌توانید فایل PDF اصلی پایگاه دانش را جایگزین و سیستم را به‌روزرسانی کنید.")
         
-        uploaded_file = st.file_uploader("فایل PDF جدید را بارگذاری کنید", type="pdf", label_visibility="collapsed")
+        uploaded_file = st.file_uploader("فایل PDF جدید را بارگذاری کنید", type=["pdf", "docx", "xlsx"], label_visibility="collapsed")
         
         if uploaded_file is not None:
             if st.button("🚀 به‌روزرسانی و بازسازی پایگاه دانش", use_container_width=True, type="primary"):
                 progress_bar = st.progress(0, text="در حال آماده‌سازی...")
                 try:
-                    pdf_bytes = uploaded_file.getvalue()
+                    file_bytes = uploaded_file.getvalue()
+                    file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+                    
+                    temp_file_path = None
+                    if file_extension == ".pdf":
+                        temp_file_path = "temp_knowledge.pdf"
+                        with open(temp_file_path, "wb") as f:
+                            f.write(file_bytes)
+                        loader = PyPDFLoader(temp_file_path)
+                    elif file_extension == ".docx":
+                        temp_file_path = "temp_knowledge.docx"
+                        with open(temp_file_path, "wb") as f:
+                            f.write(file_bytes)
+                        
+                        # Read docx content
+                        doc = docx.Document(temp_file_path)
+                        full_text = []
+                        for para in doc.paragraphs:
+                            full_text.append(para.text)
+                        # Create a single Document object for LangChain
+                        documents = [Document(page_content="\n".join(full_text))]
+                        loader = None # No specific LangChain loader needed if we extract text manually
+                    elif file_extension == ".xlsx":
+                        temp_file_path = "temp_knowledge.xlsx"
+                        with open(temp_file_path, "wb") as f:
+                            f.write(file_bytes)
+                        
+                        # Read xlsx content using pandas
+                        xls = pd.ExcelFile(temp_file_path)
+                        full_text = []
+                        for sheet_name in xls.sheet_names:
+                            df = xls.parse(sheet_name)
+                            full_text.append(f"Sheet: {sheet_name}\n{df.to_string(index=False)}")
+                        documents = [Document(page_content="\n".join(full_text))]
+                        loader = None # No specific LangChain loader needed if we extract text manually
+                    else:
+                        st.error("فرمت فایل پشتیبانی نمی‌شود.")
+                        progress_bar.empty()
+                        return
+
                     progress_bar.progress(25, text="فایل ذخیره شد. در حال پردازش و بازسازی پایگاه دانش...")
-                    rebuild_knowledge_base(pdf_bytes)
+                    
+                    if loader: # If it was a PDF and we used PyPDFLoader
+                        documents = loader.load()
+
+                    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+                    chunks = text_splitter.split_documents(documents)
+                    
+                    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=google_api_key)
+                    vector_store = FAISS.from_documents(chunks, embeddings)
+                    vector_store.save_local(FAISS_INDEX_PATH)
+                    
+                    st.cache_resource.clear() # Clear cache so load_knowledge_base_from_index reloads
+                    
                     progress_bar.progress(100, text="عملیات با موفقیت انجام شد!")
                     time.sleep(2)
                     st.success("✅ پایگاه دانش با موفقیت به‌روزرسانی شد!")
@@ -386,14 +437,19 @@ def render_admin_page():
                 except Exception as e:
                     progress_bar.empty()
                     st.error(f"❌ خطایی در هنگام به‌روزرسانی رخ داد: {e}")
+                finally:
+                    if temp_file_path and os.path.exists(temp_file_path):
+                        os.remove(temp_file_path)
+
 
         st.markdown("<h5 class='admin-section-info'>اطلاعات سند اصلی:</h5>", unsafe_allow_html=True)
-        if os.path.exists(KNOWLEDGE_BASE_PDF):
-            st.markdown(f"- **نام فایل اصلی:** `{os.path.basename(KNOWLEDGE_BASE_PDF)}`")
+        # Display info about the last processed file, not just KNOWLEDGE_BASE_PDF
+        if os.path.exists(KNOWLEDGE_BASE_PDF): # Assuming KNOWLEDGE_BASE_PDF is updated with the last file
+            st.markdown(f"- **نام آخرین فایل پردازش شده:** `{os.path.basename(KNOWLEDGE_BASE_PDF)}`")
             st.markdown(f"- **حجم فایل:** `{os.path.getsize(KNOWLEDGE_BASE_PDF) / (1024*1024):.2f} MB`")
             st.markdown("- **وضعیت:** بارگذاری شده در پایگاه دانش.")
         else:
-            st.error("🚨 فایل 'company_knowledge.pdf' در مسیر برنامه یافت نشد.")
+            st.info("💡 هنوز هیچ فایل پایگاه دانشی بارگذاری نشده است.")
 
 
     with admin_tabs[1]:
@@ -446,8 +502,7 @@ def render_chat_page():
         st.markdown("---")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
-        # Back to main page button
-        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
+        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True) # New button
 
         if st.sidebar.button("⚙️ حساب کاربری من", key="my_account_btn_chat", use_container_width=True):
             navigate_to("user_account")
@@ -483,7 +538,7 @@ def render_chat_page():
     st.markdown("<h3 class='chat-section-header'>🖼️ افزودن فایل/تصویر به مکالمه</h3>", unsafe_allow_html=True)
     user_uploaded_context_file = st.file_uploader(
         "یک فایل PDF یا تصویر (JPG, PNG) برای افزودن به سوال فعلی آپلود کنید.",
-        type=["pdf", "jpg", "jpeg", "png"],
+        type=["pdf", "jpg", "jpeg", "png", "docx", "xlsx"], # Added docx, xlsx
         key="user_context_uploader",
     )
 
@@ -513,15 +568,17 @@ def render_chat_page():
         # Handle uploaded file/image
         if user_uploaded_context_file:
             file_type = user_uploaded_context_file.type
-            if "pdf" in file_type:
+            file_extension = os.path.splitext(user_uploaded_context_file.name)[1].lower()
+
+            if file_extension == ".pdf":
                 st.info("در حال پردازش PDF آپلود شده برای سوال فعلی...")
-                temp_pdf_path = None
+                temp_file_path = None
                 try:
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
                         temp_file.write(user_uploaded_context_file.getvalue())
-                        temp_pdf_path = temp_file.name
+                        temp_file_path = temp_file.name
                     
-                    loader = PyPDFLoader(temp_pdf_path)
+                    loader = PyPDFLoader(temp_file_path)
                     pdf_docs = loader.load()
                     pdf_text = "\n".join([doc.page_content for doc in pdf_docs])
                     
@@ -531,8 +588,55 @@ def render_chat_page():
                 except Exception as e:
                     st.error(f"خطا در پردازش PDF برای سوال فعلی: {e}")
                 finally:
-                    if temp_pdf_path and os.path.exists(temp_pdf_path):
-                        os.remove(temp_pdf_path)
+                    if temp_file_path and os.path.exists(temp_file_path):
+                        os.remove(temp_file_path)
+
+            elif file_extension == ".docx":
+                st.info("در حال پردازش فایل Word آپلود شده برای سوال فعلی...")
+                temp_file_path = None
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as temp_file:
+                        temp_file.write(user_uploaded_context_file.getvalue())
+                        temp_file_path = temp_file.name
+                    
+                    doc = docx.Document(temp_file_path)
+                    full_text = []
+                    for para in doc.paragraphs:
+                        full_text.append(para.text)
+                    doc_text = "\n".join(full_text)
+                    
+                    user_message_display["content"] += f"\n\n(متن مرتبط از فایل Word: {doc_text[:500]}...)"
+                    gemini_prompt_parts.append({"text": f"متن مرتبط از فایل Word: {doc_text}"})
+                    st.success("فایل Word برای سوال فعلی پردازش شد.")
+                except Exception as e:
+                    st.error(f"خطا در پردازش فایل Word برای سوال فعلی: {e}")
+                finally:
+                    if temp_file_path and os.path.exists(temp_file_path):
+                        os.remove(temp_file_path)
+
+            elif file_extension == ".xlsx":
+                st.info("در حال پردازش فایل Excel آپلود شده برای سوال فعلی...")
+                temp_file_path = None
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as temp_file:
+                        temp_file.write(user_uploaded_context_file.getvalue())
+                        temp_file_path = temp_file.name
+                    
+                    xls = pd.ExcelFile(temp_file_path)
+                    full_text = []
+                    for sheet_name in xls.sheet_names:
+                        df = xls.parse(sheet_name)
+                        full_text.append(f"Sheet: {sheet_name}\n{df.to_string(index=False)}")
+                    excel_text = "\n".join(full_text)
+                    
+                    user_message_display["content"] += f"\n\n(متن مرتبط از فایل Excel: {excel_text[:500]}...)"
+                    gemini_prompt_parts.append({"text": f"متن مرتبط از فایل Excel: {excel_text}"})
+                    st.success("فایل Excel برای سوال فعلی پردازش شد.")
+                except Exception as e:
+                    st.error(f"خطا در پردازش فایل Excel برای سوال فعلی: {e}")
+                finally:
+                    if temp_file_path and os.path.exists(temp_file_path):
+                        os.remove(temp_file_path)
 
             elif "image" in file_type:
                 st.info("در حال پردازش تصویر آپلود شده برای سوال فعلی...")
@@ -544,6 +648,8 @@ def render_chat_page():
                     {"inlineData": {"mimeType": file_type, "data": base64_image}}
                 ]
                 st.success("تصویر برای سوال فعلی پردازش شد.")
+            else:
+                st.warning("فرمت فایل آپلود شده پشتیبانی نمی‌شود.")
         
         # Add user message to chat history and display
         st.session_state.messages.append({"role": "user", **user_message_display})
@@ -559,18 +665,18 @@ def render_chat_page():
             with st.spinner("🚀 دستیار هوش مصنوعی در حال پردازش سوال شماست..."):
                 try:
                     full_response = ""
-                    if user_uploaded_context_file and "image" in user_uploaded_context_file.type:
+                    if user_uploaded_context_file and ("image" in file_type): # Check file_type here
                         # For image input, use multimodal_llm directly
                         raw_response = multimodal_llm.invoke(gemini_prompt_parts)
                         full_response = raw_response.content
-                    elif user_uploaded_context_file and "pdf" in user_uploaded_context_file.type:
-                        # For PDF input, still use RAG but pass the extracted text as part of the prompt
-                        # The RAG chain will also retrieve relevant docs.
-                        response = qa_chain.invoke({"query": gemini_prompt_parts[0]["text"] + "\n\n" + gemini_prompt_parts[1]["text"]})
-                        full_response = response["result"]
                     else:
-                        # Standard text query with RAG
-                        response = qa_chain.invoke({"query": prompt})
+                        # For text, PDF, DOCX, XLSX input, use qa_chain (RAG)
+                        # Join text parts if any document was uploaded
+                        combined_prompt = prompt
+                        if len(gemini_prompt_parts) > 1: # If additional text parts were added (from PDF/DOCX/XLSX)
+                            combined_prompt = "\n\n".join([p["text"] for p in gemini_prompt_parts if "text" in p])
+                        
+                        response = qa_chain.invoke({"query": combined_prompt})
                         full_response = response["result"]
 
                     st.markdown(full_response)
@@ -605,9 +711,7 @@ def render_user_account_page():
         st.markdown("---")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
-        # Back to main page button
-        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
-
+        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True) # New button
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
     st.title("👤 مدیریت حساب کاربری")

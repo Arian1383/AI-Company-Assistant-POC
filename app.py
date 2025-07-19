@@ -20,7 +20,6 @@ FAISS_INDEX_PATH = "faiss_index"
 KNOWLEDGE_BASE_PDF = "company_knowledge.pdf"
 CSS_FILE_LIGHT = "style_light.css" # نام فایل CSS برای تم روشن
 CSS_FILE_DARK = "style_dark.css" # نام فایل CSS برای تم تیره
-# LOGO_PATH = "sepahan_logo.png" # مسیر فایل لوگو - حذف شد
 
 # --- Page Configuration (MUST be the first Streamlit command) ---
 st.set_page_config(
@@ -170,6 +169,7 @@ except KeyError:
     st.error("🔑 خطای کلید API: کلید Google Gemini پیدا نشد. لطفاً آن را در Streamlit Secrets تنظیم کنید.")
     st.stop()
 
+
 # --- CORE LOGIC ---
 
 def load_users():
@@ -277,13 +277,11 @@ def load_knowledge_base_from_index(_api_key):
         return None, None # Return None for both vector_store and chunks
     
     try:
+        # Using Google Generative AI Embeddings as requested
         embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=_api_key)
-        vector_store = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
         
-        # To get the chunks, we would typically need to re-process the PDF or save chunks separately.
-        # For now, we'll just return the vector store. If chunks are needed for other purposes,
-        # they should be handled during the rebuild_knowledge_base process.
-        return vector_store, None 
+        vector_store = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
+        return vector_store, None
     except Exception as e:
         st.error(f"🚨 خطایی در بارگذاری پایگاه دانش رخ داد: {e}")
         return None, None
@@ -301,10 +299,12 @@ def rebuild_knowledge_base(pdf_file_bytes):
     loader = PyPDFLoader(KNOWLEDGE_BASE_PDF)
     documents = loader.load()
     
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200) # Corrected typo here
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200) 
     chunks = text_splitter.split_documents(documents)
     
+    # Using Google Generative AI Embeddings as requested for rebuild
     embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=google_api_key)
+
     vector_store = FAISS.from_documents(chunks, embeddings)
     vector_store.save_local(FAISS_INDEX_PATH)
     
@@ -313,20 +313,10 @@ def rebuild_knowledge_base(pdf_file_bytes):
 
 # --- UI RENDERING FUNCTIONS ---
 
-# def render_logo(): # Removed this function
-#     """Renders the company logo."""
-#     if os.path.exists(LOGO_PATH):
-#         st.markdown(f'<div class="logo-container">', unsafe_allow_html=True)
-#         st.image(LOGO_PATH, width=150, output_format="PNG")
-#         st.markdown(f'</div>', unsafe_allow_html=True)
-#     else:
-#         st.warning(f"⚠️ فایل لوگو '{LOGO_PATH}' پیدا نشد. لطفاً آن را در کنار 'app.py' قرار دهید.")
-
 def render_login_page():
     """Renders the login page."""
     _, center_col, _ = st.columns([1, 1.2, 1])
     with center_col:
-        # render_logo() # Removed logo call
         st.markdown('<h2 class="login-title">دستیار دانش گروه صنعتی سپاهان</h2>', unsafe_allow_html=True)
         st.markdown('<p class="login-subtitle">برای شروع، لطفاً با نام کاربری و رمز عبور خود وارد شوید. در صورت نداشتن حساب کاربری، با مدیر سیستم تماس بگیرید.</p>', unsafe_allow_html=True)
         
@@ -359,7 +349,6 @@ def render_admin_page():
             navigate_to("user_account")
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
-    # render_logo() # Removed logo call
     st.title("🛠️ مدیریت سیستم")
     
     admin_tabs = st.tabs(["📚 مدیریت پایگاه دانش", "👤 مدیریت کاربران", "📊 لاگ‌های سیستم"])
@@ -449,14 +438,13 @@ def render_chat_page():
             navigate_to("user_account")
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
-    # render_logo() # Removed logo call
     st.title("🧠 دستیار دانش هوشمند شرکت سپاهان")
     st.subheader("💡 سوالات خود را در مورد دستورالعمل‌ها و رویه‌های شرکت بپرسید.")
 
     st.info("💡 من اینجا هستم تا به سوالات شما بر اساس اسناد داخلی شرکت پاسخ دهم.")
 
     # Load knowledge base (and cache it)
-    vector_store, _ = load_knowledge_base_from_index(google_api_key) # _ for all_chunks, not used here
+    vector_store, _ = load_knowledge_base_from_index(google_api_key) # Use google_api_key
 
     if vector_store is None:
         st.error("🚨 پایگاه دانش بارگذاری نشد. لطفاً با مدیر سیستم تماس بگیرید و اسناد را اضافه کنید.")
@@ -464,7 +452,7 @@ def render_chat_page():
 
     retriever = vector_store.as_retriever()
     
-    # Initialize LLMs
+    # Initialize LLMs using Google Generative AI as requested
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key)
     multimodal_llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key)
 
@@ -498,7 +486,7 @@ def render_chat_page():
     # Accept user input
     if prompt := st.chat_input("سوال خود را در مورد دستورالعمل‌ها بپرسید..."):
         user_message_display = {"type": "text", "content": prompt}
-        gemini_prompt_parts = [{"text": prompt}]
+        gemini_prompt_parts = [{"text": prompt}] # Using gemini_prompt_parts as it's Google Gemini now
 
         # Handle uploaded file/image
         if user_uploaded_context_file:
@@ -541,8 +529,8 @@ def render_chat_page():
             if user_message_display["type"] == "text":
                 st.markdown(user_message_display["content"])
             elif user_message_display["type"] == "image":
-                st.image(user_message_content["content"], caption="تصویر آپلود شده", use_column_width=True)
-                st.markdown(user_message_content["text_content"])
+                st.image(user_message_display["content"], caption="تصویر آپلود شده", use_column_width=True)
+                st.markdown(user_message_display["text_content"])
 
         # Get assistant response
         with st.chat_message("assistant"):
@@ -553,14 +541,13 @@ def render_chat_page():
                         # For image input, use multimodal_llm directly
                         raw_response = multimodal_llm.invoke(gemini_prompt_parts)
                         full_response = raw_response.content
-                    elif user_uploaded_context_file and "pdf" in user_uploaded_context_file.type:
-                        # For PDF input, still use RAG but pass the extracted text as part of the prompt
-                        # The RAG chain will also retrieve relevant docs.
-                        response = qa_chain.invoke({"query": gemini_prompt_parts[0]["text"] + "\n\n" + gemini_prompt_parts[1]["text"]})
-                        full_response = response["result"]
                     else:
-                        # Standard text query with RAG
-                        response = qa_chain.invoke({"query": prompt})
+                        # For text or PDF input, use qa_chain (RAG)
+                        # The prompt for qa_chain needs to be a string. Join parts if PDF was uploaded.
+                        if len(gemini_prompt_parts) > 1 and "text" in gemini_prompt_parts[1]: # If PDF text was added
+                             response = qa_chain.invoke({"query": gemini_prompt_parts[0]["text"] + "\n\n" + gemini_prompt_parts[1]["text"]})
+                        else:
+                             response = qa_chain.invoke({"query": prompt}) # Original prompt for text-only
                         full_response = response["result"]
 
                     st.markdown(full_response)
@@ -584,7 +571,6 @@ def render_user_account_page():
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
-    # render_logo() # Removed logo call
     st.title("👤 مدیریت حساب کاربری")
     st.info(f"شما به عنوان **{st.session_state.user_id}** وارد شده‌اید.")
 
@@ -609,7 +595,7 @@ def render_user_account_page():
                                 save_users(users_data)
                                 st.success("✅ رمز عبور با موفقیت تغییر یافت.")
                                 time.sleep(1)
-                                st.rerun() # Keep rerun here for immediate refresh of user list
+                                st.rerun()
                             else:
                                 st.warning("⚠️ رمز عبور جدید حداقل باید 4 کاراکتر باشد.")
                         else:

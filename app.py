@@ -205,6 +205,14 @@ def go_back():
     else:
         st.warning("هیچ صفحه قبلی برای بازگشت وجود ندارد.")
 
+# New function to navigate to the user's primary page (chat for user, admin for admin)
+def go_to_main_page():
+    """Navigates to the user's primary page (chat for regular user, admin for admin)."""
+    if st.session_state.is_admin:
+        navigate_to("admin")
+    else:
+        navigate_to("chat")
+
 def validate_credentials(username, password, is_admin_attempt=False):
     """Validates user credentials and updates session state."""
     users_data = load_users()
@@ -343,8 +351,12 @@ def render_admin_page():
         st.caption(f"کاربر: {st.session_state.user_id}")
         
         st.markdown("---")
+        # Back to previous page button
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
+        # Back to main page button
+        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
+        
         if st.sidebar.button("⚙️ حساب کاربری من", key="my_account_btn_admin", use_container_width=True):
             navigate_to("user_account")
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
@@ -434,6 +446,9 @@ def render_chat_page():
         st.markdown("---")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
+        # Back to main page button
+        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
+
         if st.sidebar.button("⚙️ حساب کاربری من", key="my_account_btn_chat", use_container_width=True):
             navigate_to("user_account")
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
@@ -539,8 +554,8 @@ def render_chat_page():
                 st.image(user_message_display["content"], caption="تصویر آپلود شده", use_column_width=True)
                 st.markdown(user_message_display["text_content"])
 
+        # Get assistant response
         with st.chat_message("assistant"):
-            # The spinner now covers the actual response generation
             with st.spinner("🚀 دستیار هوش مصنوعی در حال پردازش سوال شماست..."):
                 try:
                     full_response = ""
@@ -590,6 +605,9 @@ def render_user_account_page():
         st.markdown("---")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
+        # Back to main page button
+        st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
+
         st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
 
     st.title("👤 مدیریت حساب کاربری")

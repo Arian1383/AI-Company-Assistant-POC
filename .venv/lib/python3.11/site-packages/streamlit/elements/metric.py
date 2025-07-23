@@ -20,7 +20,13 @@ from typing import TYPE_CHECKING, Any, Literal, Union, cast
 
 from typing_extensions import TypeAlias
 
-from streamlit.elements.lib.layout_utils import LayoutConfig, Width, validate_width
+from streamlit.elements.lib.layout_utils import (
+    Height,
+    LayoutConfig,
+    Width,
+    validate_height,
+    validate_width,
+)
 from streamlit.elements.lib.policies import maybe_raise_label_warnings
 from streamlit.elements.lib.utils import (
     LabelVisibility,
@@ -60,6 +66,7 @@ class MetricMixin:
         label_visibility: LabelVisibility = "visible",
         border: bool = False,
         width: Width = "stretch",
+        height: Height = "content",
     ) -> DeltaGenerator:
         r"""Display a metric in big bold font, with an optional indicator of how the metric changed.
 
@@ -123,6 +130,19 @@ class MetricMixin:
             Whether to show a border around the metric container. If this is
             ``False`` (default), no border is shown. If this is ``True``, a
             border is shown.
+
+        height : "content", "stretch", or int
+            The height of the metric element. This can be one of the following:
+
+            - ``"content"`` (default): The height of the element matches the
+              height of its content.
+            - ``"stretch"``: The height of the element matches the height of
+              its content or the height of the parent container, whichever is
+              larger. If the element is not in a parent container, the height
+              of the element matches the height of its content.
+            - An integer specifying the height in pixels: The element has a
+              fixed height. If the content is larger than the specified
+              height, scrolling is enabled.
 
         width : "stretch", "content", or int
             The width of the metric element. This can be one of the following:
@@ -218,8 +238,9 @@ class MetricMixin:
             label_visibility
         )
 
+        validate_height(height, allow_content=True)
         validate_width(width, allow_content=True)
-        layout_config = LayoutConfig(width=width)
+        layout_config = LayoutConfig(width=width, height=height)
 
         return self.dg._enqueue("metric", metric_proto, layout_config=layout_config)
 

@@ -318,7 +318,7 @@ class KeyIdMapper:
         self._key_id_mapping = key_id_mapping
         self._id_key_mapping = {v: k for k, v in key_id_mapping.items()}
 
-    def get_id_from_key(self, key: str, default: Any = None) -> str:
+    def get_id_from_key(self, key: str, default: str | None = None) -> str | None:
         return self._key_id_mapping.get(key, default)
 
     def get_key_from_id(self, widget_id: str) -> str:
@@ -441,6 +441,12 @@ class SessionState:
     def is_new_state_value(self, user_key: str) -> bool:
         """True if a value with the given key is in the current session state."""
         return user_key in self._new_session_state
+
+    def reset_state_value(self, user_key: str, value: Any | None) -> None:
+        """Reset a new session state value to a given value
+        without triggering the "state value cannot be modified" error.
+        """
+        self._new_session_state[user_key] = value
 
     def __iter__(self) -> Iterator[Any]:
         """Return an iterator over the keys of the SessionState.
@@ -670,7 +676,9 @@ class SessionState:
         """Turns a value that might be a widget id or a user provided key into
         an appropriate widget id.
         """
-        return self._key_id_mapper.get_id_from_key(k, k)
+        # It's guaranteed that the key is a string since the default is string,
+        # so we can cast it to str here:
+        return cast("str", self._key_id_mapper.get_id_from_key(k, k))
 
     def _set_key_widget_mapping(self, widget_id: str, user_key: str) -> None:
         self._key_id_mapper[user_key] = widget_id

@@ -393,18 +393,68 @@ def delete_user(username_to_delete):
 
 @st.cache_resource(ttl=3600)
 def load_knowledge_base_from_index(api_key_for_embeddings): # Renamed parameter for clarity
-    """Loads the FAISS knowledge base from disk."""
+    """Loads the FAISS knowledge base from disk.
+
+    این تابع اکنون هوشمندتر است و سعی می‌کند در سناریوهای زیر پایگاه دانش را به طور خودکار بازسازی کند:
+    1. اگر پوشه FAISS موجود نباشد ولی اسناد اولیه در پوشه منبع وجود داشته باشد.
+    2. اگر بارگذاری پایگاه دانش با خطا مواجه شود (به‌عنوان مثال ایندکس خراب باشد).
+
+    در هر دو حالت بالا، تابع یک بار اقدام به `rebuild_knowledge_base` خواهد کرد و سپس سعی می‌کند مجدداً ایندکس را بارگذاری کند.
+    """
+
+    # 1) اگر پوشه وجود ندارد، تلاش برای ساخت از ابتدا در صورت وجود اسناد
     if not os.path.exists(FAISS_INDEX_PATH):
-        st.warning("⚠️ پوشه پایگاه دانش FAISS یافت نشد. لطفاً ابتدا فایل‌های پایگاه دانش را بارگذاری کنید.")
-        return None, None # Return None for both vector_store and chunks
-    
+        # آیا منبع مستندی برای ساخت وجود دارد؟
+        has_docs = os.path.exists(KNOWLEDGE_SOURCES_DIR) and any(
+            os.path.isfile(os.path.join(KNOWLEDGE_SOURCES_DIR, f)) for f in os.listdir(KNOWLEDGE_SOURCES_DIR)
+        )
+
+        if has_docs:
+            st.info("🔄 پایگاه دانش یافت نشد. در حال ساخت ایندکس FAISS از اسناد موجود...")
+            processed = rebuild_knowledge_base(api_key_for_embeddings)
+
+            if processed:
+                st.success(f"✅ ایندکس جدید با {processed} سند ساخته شد.")
+            else:
+                st.warning("⚠️ هیچ سندی برای ساخت ایندکس پیدا نشد. لطفاً ابتدا اسناد را بارگذاری کنید.")
+                return None, None
+        else:
+            st.warning("⚠️ پوشه پایگاه دانش FAISS یافت نشد و هیچ سندی برای ساخت موجود نیست.")
+            return None, None
+
+    # 2) تلاش برای بارگذاری (پس از اطمینان از وجود پوشه)
     try:
-        # Use CustomEmbeddings here
         embeddings = CustomEmbeddings(api_key=api_key_for_embeddings)
-        
-        vector_store = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
-        return vector_store, None 
+        vector_store = FAISS.load_local(
+            FAISS_INDEX_PATH,
+            embeddings,
+            allow_dangerous_deserialization=True,
+        )
+        return vector_store, None
     except Exception as e:
+        # اگر بارگذاری شکست خورد، احتمالاً ایندکس خراب است. یک بار دیگر بازسازی و تلاش مجدد.
+        st.warning("⚠️ خطا در بارگذاری پایگاه دانش. در حال بازسازی ایندکس FAISS...")
+        try:
+            # حذف پوشه خراب در صورت وجود
+            if os.path.exists(FAISS_INDEX_PATH):
+                shutil.rmtree(FAISS_INDEX_PATH)
+        except Exception:
+            pass
+
+        try:
+            processed = rebuild_knowledge_base(api_key_for_embeddings)
+            if processed:
+                embeddings = CustomEmbeddings(api_key=api_key_for_embeddings)
+                vector_store = FAISS.load_local(
+                    FAISS_INDEX_PATH,
+                    embeddings,
+                    allow_dangerous_deserialization=True,
+                )
+                st.success("✅ پایگاه دانش با موفقیت بازسازی شد.")
+                return vector_store, None
+        except Exception as rebuild_error:
+            st.error(f"🚨 بازسازی پایگاه دانش نیز با خطا مواجه شد: {rebuild_error}")
+
         st.error(f"🚨 خطایی در بارگذاری پایگاه دانش رخ داد: {e}")
         return None, None
 

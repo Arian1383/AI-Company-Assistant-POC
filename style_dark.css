@@ -319,3 +319,32 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
 div.stVerticalBlock > div:first-child {
     padding-top: 0;
 }
+
+/* --- ENHANCED VISUAL EFFECTS (NEW) --- */
+@keyframes pulseGlow {
+    0%   { box-shadow: 0 0 0 0 var(--accent-color); }
+    70%  { box-shadow: 0 0 0 12px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.stButton>button:hover {
+    animation: pulseGlow 1.6s cubic-bezier(0.66, 0, 0, 1) infinite;
+}
+
+/* Moving radial highlight background */
+@keyframes radialMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+body::before {
+    content: "";
+    position: fixed;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    background: radial-gradient(circle at center, rgba(3,218,198,0.06) 0%, transparent 70%);
+    background-size: 400% 400%;
+    animation: radialMove 20s ease-in-out infinite;
+    z-index: -1; /* Stay behind content */
+}

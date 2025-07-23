@@ -462,7 +462,6 @@ def rebuild_knowledge_base(api_key_for_embeddings): # Pass API key for embedding
     
     if not all_documents:
         st.warning("هیچ سند قابل پردازشی در پوشه منابع پایگاه دانش یافت نشد. پایگاه دانش بازسازی نشد.")
-        # Ensure FAISS index is cleared if no documents exist
         # This part is now redundant due to the shutil.rmtree above, but kept for clarity if logic changes
         if os.path.exists(FAISS_INDEX_PATH):
             import shutil
@@ -477,6 +476,13 @@ def rebuild_knowledge_base(api_key_for_embeddings): # Pass API key for embedding
     embeddings = CustomEmbeddings(api_key=api_key_for_embeddings)
     vector_store = FAISS.from_documents(chunks, embeddings)
     vector_store.save_local(FAISS_INDEX_PATH)
+    
+    # Add a small delay to ensure file system sync
+    time.sleep(1) # Added sleep here
+
+    # Verify if the FAISS index directory was actually created/saved
+    if not os.path.exists(FAISS_INDEX_PATH):
+        st.error("❌ هشدار: پوشه پایگاه دانش FAISS پس از ذخیره سازی پیدا نشد. ممکن است مشکل مجوز یا فضای دیسک وجود داشته باشد.")
     
     st.cache_resource.clear() # Clear cache so load_knowledge_base_from_index reloads with new data
     return processed_files_count # Return count of processed files

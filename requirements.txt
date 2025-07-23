@@ -1,8 +1,10 @@
 streamlit
-langchain-google-genai
+# langchain-google-genai # Removed as per request
 langchain-community
 faiss-cpu
 pypdf
 python-docx
 pandas
-openpyxl # pandas depends on this for xlsx
+openpyxl
+requests
+pydantic>=2.0.0 # Ensure pydantic is updated to version 2 or higher for Field

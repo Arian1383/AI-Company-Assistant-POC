@@ -504,43 +504,96 @@ def delete_knowledge_file(filename):
 
 def render_login_page():
     """Renders the login page."""
+    # هدر اصلی
+    st.markdown("""
+    <div class="main-header animate-fade-in">
+        <h1 class="header-title">🤖 دستیار دانش گروه صنعتی سپاهان</h1>
+        <p class="header-subtitle">سامانه هوشمند پاسخگویی به سوالات سازمانی</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     _, center_col, _ = st.columns([1, 1.2, 1])
     with center_col:
-        st.markdown('<h2 class="login-title">دستیار دانش گروه صنعتی سپاهان</h2>', unsafe_allow_html=True)
-        st.markdown('<p class="login-subtitle">برای شروع، لطفاً با نام کاربری و رمز عبور خود وارد شوید. در صورت نداشتن حساب کاربری، با مدیر سیستم تماس بگیرید.</p>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="custom-card login-card animate-slide-in">
+            <h2 class="login-title">ورود به سیستم</h2>
+            <p class="login-subtitle">برای شروع، لطفاً با نام کاربری و رمز عبور خود وارد شوید.<br>در صورت نداشتن حساب کاربری، با مدیر سیستم تماس بگیرید.</p>
+        """, unsafe_allow_html=True)
         
-        login_tab, admin_tab = st.tabs(["ورود کاربر", "ورود مدیر"])
+        login_tab, admin_tab = st.tabs(["👤 ورود کاربر", "🔐 ورود مدیر"])
+        
         with login_tab:
             with st.form("user_login_form"):
-                username = st.text_input("نام کاربری", placeholder="نام کاربری خود را وارد کنید", label_visibility="collapsed")
-                password = st.text_input("رمز عبور", type="password", placeholder="رمز عبور خود را وارد کنید", label_visibility="collapsed")
-                if st.form_submit_button("ورود", use_container_width=True):
-                    validate_credentials(username, password, is_admin_attempt=False)
+                st.markdown("##### 🔑 اطلاعات کاربری")
+                username = st.text_input("نام کاربری", placeholder="نام کاربری خود را وارد کنید")
+                password = st.text_input("رمز عبور", type="password", placeholder="رمز عبور خود را وارد کنید")
+                
+                col1, col2, col3 = st.columns([1, 2, 1])
+                with col2:
+                    if st.form_submit_button("🚀 ورود به سیستم", use_container_width=True):
+                        validate_credentials(username, password, is_admin_attempt=False)
+                        
         with admin_tab:
             with st.form("admin_login_form"):
-                admin_username = st.text_input("نام کاربری مدیر", placeholder="نام کاربری ادمین", label_visibility="collapsed")
-                admin_password = st.text_input("رمز عبور مدیر", type="password", placeholder="رمز عبور ادمین", label_visibility="collapsed")
-                if st.form_submit_button("ورود مدیر", use_container_width=True):
-                    validate_credentials(admin_username, admin_password, is_admin_attempt=True)
-        st.markdown('</div>', unsafe_allow_html=True) # Closing login-card div
+                st.markdown("##### 👨‍💼 اطلاعات مدیریت")
+                admin_username = st.text_input("نام کاربری مدیر", placeholder="نام کاربری ادمین")
+                admin_password = st.text_input("رمز عبور مدیر", type="password", placeholder="رمز عبور ادمین")
+                
+                col1, col2, col3 = st.columns([1, 2, 1])
+                with col2:
+                    if st.form_submit_button("⚡ ورود مدیر", use_container_width=True):
+                        validate_credentials(admin_username, admin_password, is_admin_attempt=True)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_admin_page():
     """Renders the admin panel page."""
+    # هدر اصلی مدیریت
+    st.markdown("""
+    <div class="main-header animate-fade-in">
+        <h1 class="header-title">🛠️ پنل مدیریت سیستم</h1>
+        <p class="header-subtitle">مدیریت پایگاه دانش، کاربران و نظارت بر عملکرد سیستم</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     with st.sidebar:
-        st.title(f"پنل مدیریت")
-        st.caption(f"کاربر: {st.session_state.user_id}")
+        st.markdown("""
+        <div class="custom-card animate-slide-in">
+            <h3 style="text-align: center; margin-bottom: 1rem;">👨‍💼 پنل مدیریت</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"**مدیر:** {st.session_state.user_id}")
+        st.markdown('<span class="user-role-badge role-مدیر">مدیر</span>', unsafe_allow_html=True)
         
         st.markdown("---")
+        
+        # منوی ناوبری
+        st.markdown("#### 🧭 منوی مدیریت")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
         st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
         
         if st.sidebar.button("⚙️ حساب کاربری من", key="my_account_btn_admin", use_container_width=True):
             navigate_to("user_account")
-        st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
-
-    st.title("🛠️ مدیریت سیستم")
+        
+        st.markdown("---")
+        
+        # آمار سیستم
+        st.markdown("#### 📊 آمار سیستم")
+        users_data = load_users()
+        total_users = len(users_data.get("users", [])) + len(users_data.get("admin_users", []))
+        knowledge_files = len(os.listdir(KNOWLEDGE_SOURCES_DIR)) if os.path.exists(KNOWLEDGE_SOURCES_DIR) else 0
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("کاربران", total_users)
+        with col2:
+            st.metric("فایل‌های دانش", knowledge_files)
+        
+        st.markdown("---")
+        st.button("🚪 خروج از سیستم", on_click=logout, use_container_width=True)
     
     admin_tabs = st.tabs(["📚 مدیریت پایگاه دانش", "👤 مدیریت کاربران", "📊 لاگ‌های سیستم"])
 
@@ -644,34 +697,76 @@ def render_admin_page():
 
 def render_chat_page():
     """Renders the main chat interface for regular users."""
+    # هدر اصلی حرفه‌ای
+    st.markdown("""
+    <div class="main-header animate-fade-in">
+        <h1 class="header-title">🤖 دستیار دانش گروه صنعتی سپاهان</h1>
+        <p class="header-subtitle">سامانه هوشمند پاسخگویی به سوالات دستورالعمل‌ها و رویه‌های سازمانی</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Sidebar
     with st.sidebar:
-        st.title(f"کاربر: {st.session_state.user_id}")
+        st.markdown("""
+        <div class="custom-card animate-slide-in">
+            <h3 style="text-align: center; margin-bottom: 1rem;">👋 خوش آمدید</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"**کاربر:** {st.session_state.user_id}")
+        role_badge_class = f"role-{get_user_role(st.session_state.user_id)}"
+        st.markdown(f'<span class="user-role-badge {role_badge_class}">{get_user_role(st.session_state.user_id)}</span>', unsafe_allow_html=True)
         
         st.markdown("---")
+        
+        # منوی ناوبری
+        st.markdown("#### 🧭 منوی اصلی")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
         st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
 
         if st.sidebar.button("⚙️ حساب کاربری من", key="my_account_btn_chat", use_container_width=True):
             navigate_to("user_account")
-        st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
-
-    st.title("🧠 دستیار دانش هوشمند شرکت سپاهان")
-    st.subheader("💡 سوالات خود را در مورد دستورالعمل‌ها و رویه‌های شرکت بپرسید.")
-
-    st.info("💡 من اینجا هستم تا به سوالات شما بر اساس اسناد داخلی شرکت پاسخ دهم.")
+        
+        st.markdown("---")
+        
+        # آمار کاربری
+        st.markdown("#### 📊 آمار جلسه")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("پیام‌ها", len([m for m in st.session_state.messages if m["role"] == "user"]))
+        with col2:
+            st.metric("پاسخ‌ها", len([m for m in st.session_state.messages if m["role"] == "assistant"]) - 1)
+        
+        st.markdown("---")
+        st.button("🚪 خروج از سیستم", on_click=logout, use_container_width=True)
 
     # Load knowledge base (and cache it)
     vector_store, _ = load_knowledge_base_from_index(aval_ai_api_key) # Use aval_ai_api_key
 
     if vector_store is None:
-        st.error("🚨 پایگاه دانش بارگذاری نشد.")
+        st.markdown("""
+        <div class="custom-card" style="border-left: 4px solid var(--danger-color);">
+            <h3>❌ خطا در بارگذاری پایگاه دانش</h3>
+            <p>پایگاه دانش بارگذاری نشد. لطفاً با مدیر سیستم تماس بگیرید.</p>
+        </div>
+        """, unsafe_allow_html=True)
         if st.session_state.is_admin:
-            st.warning("به نظر می‌رسد پایگاه دانش خالی است یا با مشکل مواجه شده است. به عنوان مدیر، می‌توانید از بخش مدیریت، اسناد جدید را بارگذاری و پایگاه دانش را بازسازی کنید.")
+            st.markdown("""
+            <div class="custom-card" style="border-left: 4px solid var(--warning-color);">
+                <h4>⚠️ راهنمای مدیر</h4>
+                <p>به نظر می‌رسد پایگاه دانش خالی است یا با مشکل مواجه شده است. به عنوان مدیر، می‌توانید از بخش مدیریت، اسناد جدید را بارگذاری و پایگاه دانش را بازسازی کنید.</p>
+            </div>
+            """, unsafe_allow_html=True)
             if st.button("🛠️ رفتن به پنل مدیریت برای بازسازی پایگاه دانش", use_container_width=True):
                 navigate_to("admin")
         else:
-            st.warning("لطفاً با مدیر سیستم تماس بگیرید تا اسناد را اضافه یا پایگاه دانش را بازسازی کند.")
+            st.markdown("""
+            <div class="custom-card" style="border-left: 4px solid var(--info-color);">
+                <h4>💡 راهنما</h4>
+                <p>لطفاً با مدیر سیستم تماس بگیرید تا اسناد را اضافه یا پایگاه دانش را بازسازی کند.</p>
+            </div>
+            """, unsafe_allow_html=True)
         return # Stop execution if KB not loaded
 
     retriever = vector_store.as_retriever()
@@ -689,11 +784,18 @@ def render_chat_page():
     )
 
     # --- User File/Image Upload for Context ---
-    st.markdown("<h3 class='chat-section-header'>🖼️ افزودن فایل/تصویر به مکالمه</h3>", unsafe_allow_html=True)
+    st.markdown("""
+    <div class="custom-card">
+        <h3 style="margin-bottom: 1rem;">🖼️ افزودن فایل/تصویر به مکالمه</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">برای دریافت پاسخ دقیق‌تر، می‌توانید فایل یا تصویر مرتبط را آپلود کنید.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     user_uploaded_context_file = st.file_uploader(
-        "یک فایل PDF یا تصویر (JPG, PNG) برای افزودن به سوال فعلی آپلود کنید.",
+        "یک فایل PDF، Word، Excel یا تصویر (JPG, PNG) برای افزودن به سوال فعلی آپلود کنید.",
         type=["pdf", "jpg", "jpeg", "png", "docx", "xlsx"],
         key="user_context_uploader",
+        help="فایل‌های پشتیبانی شده: PDF, DOCX, XLSX, JPG, PNG"
     )
 
     # --- Chat Interface ---
@@ -846,55 +948,114 @@ def render_chat_page():
         """, unsafe_allow_html=True)
 
 
-    st.markdown("---")
-    st.markdown(f"<p style='text-align: center; font-size: 13px; color: var(--subtle-text-color);'>نسخه آزمایشی v1.0 | تاریخ: {datetime.now().strftime('%Y-%m-%d')}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; font-size: 13px; color: var(--subtle-text-color);'>&copy; {datetime.now().year} گروه صنعتی سپاهان. تمامی حقوق محفوظ است.</p>", unsafe_allow_html=True)
+    # فوتر حرفه‌ای
+    st.markdown("""
+    <div class="custom-card" style="margin-top: 3rem; text-align: center; background: var(--secondary-bg-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">🤖 دستیار دانش سپاهان</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">نسخه آزمایشی v1.0</p>
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">
+                    تاریخ: {datetime.now().strftime('%Y-%m-%d')} | 
+                    &copy; {datetime.now().year} گروه صنعتی سپاهان
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0.5rem 0 0 0;">
+                    تمامی حقوق محفوظ است
+                </p>
+            </div>
+        </div>
+    </div>
+    """.format(datetime=datetime), unsafe_allow_html=True)
 
 
 def render_user_account_page():
     """Renders the user account management page (e.g., change password)."""
+    # هدر اصلی حساب کاربری
+    st.markdown("""
+    <div class="main-header animate-fade-in">
+        <h1 class="header-title">👤 مدیریت حساب کاربری</h1>
+        <p class="header-subtitle">تنظیمات و مدیریت اطلاعات حساب کاربری شما</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     with st.sidebar:
-        st.title(f"حساب کاربری: {st.session_state.user_id}")
+        st.markdown("""
+        <div class="custom-card animate-slide-in">
+            <h3 style="text-align: center; margin-bottom: 1rem;">⚙️ تنظیمات حساب</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"**کاربر:** {st.session_state.user_id}")
+        role_badge_class = f"role-{get_user_role(st.session_state.user_id)}"
+        st.markdown(f'<span class="user-role-badge {role_badge_class}">{get_user_role(st.session_state.user_id)}</span>', unsafe_allow_html=True)
+        
         st.markdown("---")
+        
+        # منوی ناوبری
+        st.markdown("#### 🧭 منوی اصلی")
         if st.session_state.page_history:
             st.sidebar.button("🔙 بازگشت به صفحه قبلی", on_click=go_back, use_container_width=True)
         st.sidebar.button("🏠 بازگشت به صفحه اصلی", on_click=go_to_main_page, use_container_width=True)
-        st.button("خروج از سیستم 🚪", on_click=logout, use_container_width=True)
+        
+        st.markdown("---")
+        st.button("🚪 خروج از سیستم", on_click=logout, use_container_width=True)
 
-    st.title("👤 مدیریت حساب کاربری")
-    st.info(f"شما به عنوان **{st.session_state.user_id}** وارد شده‌اید.")
+    # اطلاعات کاربری
+    st.markdown(f"""
+    <div class="custom-card" style="border-left: 4px solid var(--info-color);">
+        <h3>🔍 اطلاعات حساب</h3>
+        <p><strong>نام کاربری:</strong> {st.session_state.user_id}</p>
+        <p><strong>نقش:</strong> {get_user_role(st.session_state.user_id)}</p>
+        <p><strong>وضعیت:</strong> <span style="color: var(--success-color);">✅ فعال</span></p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.subheader("تغییر رمز عبور")
+    # فرم تغییر رمز عبور
+    st.markdown("""
+    <div class="custom-card">
+        <h3 style="margin-bottom: 1rem;">🔐 تغییر رمز عبور</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">برای امنیت بیشتر، رمز عبور قوی انتخاب کنید که حداقل ۴ کاراکتر داشته باشد.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     with st.form("change_password_form"):
-        current_password = st.text_input("رمز عبور فعلی", type="password", key="current_pass_input")
-        new_password = st.text_input("رمز عبور جدید", type="password", key="new_pass_input")
-        confirm_new_password = st.text_input("تکرار رمز عبور جدید", type="password", key="confirm_new_pass_input")
+        current_password = st.text_input("🔑 رمز عبور فعلی", type="password", key="current_pass_input", placeholder="رمز عبور فعلی خود را وارد کنید")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            new_password = st.text_input("🆕 رمز عبور جدید", type="password", key="new_pass_input", placeholder="رمز عبور جدید")
+        with col2:
+            confirm_new_password = st.text_input("✅ تکرار رمز جدید", type="password", key="confirm_new_pass_input", placeholder="تکرار رمز عبور جدید")
 
-        if st.form_submit_button("تغییر رمز عبور", use_container_width=True, type="primary"):
-            users_data = load_users()
-            user_type_key = "admin_users" if st.session_state.is_admin else "users"
-            
-            user_found = False
-            for user_info in users_data.get(user_type_key, []):
-                if user_info["username"] == st.session_state.user_id:
-                    user_found = True
-                    if user_info["password"] == current_password:
-                        if new_password == confirm_new_password:
-                            if new_password and len(new_password) >= 4: # Basic validation
-                                user_info["password"] = new_password
-                                save_users(users_data)
-                                st.success("✅ رمز عبور با موفقیت تغییر یافت.")
-                                time.sleep(1)
-                                st.rerun()
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.form_submit_button("🔄 تغییر رمز عبور", use_container_width=True, type="primary"):
+                users_data = load_users()
+                user_type_key = "admin_users" if st.session_state.is_admin else "users"
+                
+                user_found = False
+                for user_info in users_data.get(user_type_key, []):
+                    if user_info["username"] == st.session_state.user_id:
+                        user_found = True
+                        if user_info["password"] == current_password:
+                            if new_password == confirm_new_password:
+                                if new_password and len(new_password) >= 4: # Basic validation
+                                    user_info["password"] = new_password
+                                    save_users(users_data)
+                                    st.success("✅ رمز عبور با موفقیت تغییر یافت.")
+                                    time.sleep(1)
+                                    st.rerun()
+                                else:
+                                    st.warning("⚠️ رمز عبور جدید حداقل باید 4 کاراکتر باشد.")
                             else:
-                                st.warning("⚠️ رمز عبور جدید حداقل باید 4 کاراکتر باشد.")
+                                st.warning("⚠️ رمز عبور جدید و تکرار آن مطابقت ندارند.")
                         else:
-                            st.warning("⚠️ رمز عبور جدید و تکرار آن مطابقت ندارند.")
-                    else:
-                        st.error("❌ رمز عبور فعلی اشتباه است.")
-                    break
-            if not user_found:
-                st.error("خطا: کاربر جاری در پایگاه داده یافت نشد. لطفاً دوباره وارد شوید.")
+                            st.error("❌ رمز عبور فعلی اشتباه است.")
+                        break
+                if not user_found:
+                    st.error("خطا: کاربر جاری در پایگاه داده یافت نشد. لطفاً دوباره وارد شوید.")
 
     st.markdown("---")
     st.markdown(f"<p style='text-align: center; font-size: 13px; color: var(--subtle-text-color);'>&copy; {datetime.now().year} گروه صنعتی سپاهان. تمامی حقوق محفوظ است.</p>", unsafe_allow_html=True)

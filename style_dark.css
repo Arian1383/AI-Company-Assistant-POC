@@ -1,241 +1,587 @@
-/* --- THEME DEFINITIONS - Dark Theme --- */
-:root { /* Define variables in :root for global access */
-    --bg-color: #1a202c; /* Dark slate blue */
-    --secondary-bg-color: #2d3748; /* Slightly lighter slate blue for cards, sidebar */
-    --text-color: #ffffff; /* All general text is white */
-    --header-color: #ffffff; /* All headers are white */
-    --subtle-text-color: #ffffff; /* Subtle text (captions, hints) is white */
-    --border-color: #4a5568; /* Muted blue grey for borders */
-    --accent-color: #03DAC6; /* A vibrant teal for accent */
-    --accent-text-color: #121212; /* Very dark text on accent for contrast */
-    --user-msg-bg: #3182ce; /* A medium blue for user messages */
-    --assistant-msg-bg: #2d3748; /* Same as secondary background, for consistency */
-    --shadow-color: rgba(0, 0, 0, 0.5); /* More prominent shadow for depth */
-    --input-bg: #2d3748; /* Dark grey for input fields */
-    --input-border: #4a5568; /* Slightly lighter border for inputs */
-    --input-text-color: #ffffff; /* Text inside inputs is white */
-    --alert-bg-info: #2a4365; /* Darker blue for info alerts */
-    --alert-border-info: #03DAC6; /* Accent color for info alert border */
-    --alert-text-info: #ffffff; /* Light text for info alerts */
+/* ==================== فونت و تنظیمات پایه - تم تیره ==================== */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+    /* رنگ‌های اصلی تم تیره */
+    --primary-color: #4FC3F7;
+    --primary-hover: #29B6F6;
+    --secondary-color: #E91E63;
+    --accent-color: #FF9800;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+    --danger-color: #F44336;
+    --info-color: #00BCD4;
+    
+    /* پس‌زمینه‌ها */
+    --main-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --content-bg: #1e1e2e;
+    --secondary-bg-color: #2a2a3e;
+    --card-bg: #252540;
+    --sidebar-bg: #1a1a2e;
+    --header-bg: rgba(37, 37, 64, 0.95);
+    
+    /* متن */
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa0a6;
+    --text-muted: #5f6368;
+    --text-inverse: #1a1a2e;
+    
+    /* حاشیه‌ها و خطوط */
+    --border-color: #3c4043;
+    --border-light: #2d2d44;
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.4);
+    --shadow-heavy: rgba(0, 0, 0, 0.6);
+    
+    /* ورودی‌ها */
+    --input-bg: #2a2a3e;
+    --input-border: #3c4043;
+    --input-focus: #4FC3F7;
+    
+    /* دکمه‌ها */
+    --button-primary: linear-gradient(135deg, #4FC3F7 0%, #29B6F6 100%);
+    --button-secondary: #5f6368;
+    --button-success: #4CAF50;
+    --button-danger: #F44336;
+    
+    /* انیمیشن‌ها */
+    --transition-fast: 0.2s ease;
+    --transition-medium: 0.3s ease;
+    --transition-slow: 0.5s ease;
 }
 
-/* --- GENERAL APP STYLING --- */
-body {
-    direction: rtl;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    font-family: 'Vazirmatn', sans-serif; /* Ensure Vazirmatn is used */
-    color: var(--text-color); /* Apply base text color */
-    background-color: var(--bg-color); /* Apply base background color */
-}
-
+/* ==================== تنظیمات کلی ==================== */
 .stApp {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background: var(--main-bg);
+    font-family: 'Vazirmatn', sans-serif !important;
+    direction: rtl;
+    text-align: right;
+    color: var(--text-primary);
 }
 
-.stApp > header { display: none; }
 .main .block-container {
-    max-width: 900px;
-    padding: 1rem 2rem;
+    padding: 2rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* --- LOGIN PAGE --- */
-@keyframes popIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+/* ==================== هدر و ناوبری ==================== */
+.main-header {
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px var(--shadow-light);
+    border: 1px solid var(--border-light);
 }
-.login-card {
-    margin-top: 4rem; /* Reverted margin-top for login card as logo is gone */
-    padding: 1.5rem 2.5rem;
-    background-color: var(--secondary-bg-color);
-    border-radius: 16px;
-    box-shadow: 0 8px 25px var(--shadow-color);
-    border: 1px solid var(--border-color);
-    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.login-title {
-    text-align: center;
-    color: var(--header-color);
+
+.header-title {
+    font-size: 2.5rem;
     font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
     margin-bottom: 0.5rem;
 }
-.login-subtitle {
+
+.header-subtitle {
+    color: var(--text-secondary);
     text-align: center;
-    color: var(--subtle-text-color); /* Now white */
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* ==================== کارت‌ها و کانتینرها ==================== */
+.custom-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px var(--shadow-light);
+    border: 1px solid var(--border-light);
     margin-bottom: 2rem;
-    font-size: 15px;
-    line-height: 1.6;
+    transition: all var(--transition-medium);
+    backdrop-filter: blur(10px);
 }
 
-/* --- GENERAL COMPONENTS --- */
-h1, h2, h3 { font-weight: 700; color: var(--header-color); }
+.custom-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px var(--shadow-medium);
+    border-color: var(--primary-color);
+}
 
-.stButton>button {
-    background-color: var(--accent-color);
-    color: var(--accent-text-color);
-    border-radius: 10px;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 600;
+.glass-card {
+    background: rgba(37, 37, 64, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(79, 195, 247, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px var(--shadow-light);
+}
+
+/* ==================== دکمه‌ها ==================== */
+.stButton > button {
+    background: var(--button-primary);
+    color: var(--text-inverse);
     border: none;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Added box-shadow to transition */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Default button shadow for dark theme */
-}
-.stButton>button:hover {
-    transform: translateY(-2px) scale(1.02); /* Slight lift and scale on hover */
-    filter: brightness(110%); /* Slightly brighter on hover for dark theme */
-    box-shadow: 0 6px 10px rgba(0,0,0,0.3); /* Enhanced shadow on hover */
-}
-.stButton>button:active {
-    transform: translateY(0) scale(0.98); /* Press effect */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* Reduced shadow on active */
-}
-
-/* --- Input fields (text, password, file uploader) --- */
-/* Target specific input types and file uploader section */
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="number"],
-textarea,
-.stFileUploader > section {
-    border-radius: 8px;
-    border: 1px solid var(--input-border);
-    padding: 12px;
-    font-size: 15px;
-    background-color: var(--input-bg) !important; /* Force dark background */
-    color: var(--input-text-color) !important; /* Force white text */
-    transition: all 0.2s ease;
-}
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="email"]:focus,
-input[type="number"]:focus,
-textarea:focus,
-.stFileUploader > section:focus-within {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
-}
-
-/* Explicitly target labels for text inputs, radio buttons, etc. */
-div[data-testid="stTextInput"] label,
-div[data-testid="stRadio"] label,
-div[data-testid="stFileUploader"] label,
-div[data-testid="stCheckbox"] label {
+    border-radius: 15px;
+    padding: 0.75rem 2rem;
+    font-family: 'Vazirmatn', sans-serif;
     font-weight: 500;
-    color: var(--subtle-text-color); /* Now white */
-    margin-bottom: 8px;
-}
-/* Placeholder text color */
-input::placeholder,
-textarea::placeholder {
-    color: var(--subtle-text-color) !important; /* Force white placeholder */
-    opacity: 0.7; /* Make placeholder slightly less opaque than actual text */
+    font-size: 1rem;
+    transition: all var(--transition-medium);
+    box-shadow: 0 4px 15px var(--shadow-light);
+    cursor: pointer;
+    width: 100%;
 }
 
-.stTabs [data-baseweb="tab-list"] {
-    justify-content: center;
-    border-bottom: 2px solid var(--border-color);
-}
-.stTabs [data-baseweb="tab"] {
-    padding: 10px 15px;
-    background-color: transparent;
-    color: var(--subtle-text-color); /* Default tab text color should be white */
-    transition: all 0.2s ease; /* Added transition for tabs */
-}
-.stTabs [aria-selected="true"] {
-    border-bottom: 2px solid var(--accent-color);
-    color: var(--accent-color);
-    font-weight: 600;
-    transform: translateY(-2px); /* Slight lift for active tab */
-}
-.stTabs [data-baseweb="tab"]:hover {
-    color: var(--accent-color); /* Highlight on hover */
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+    background: var(--primary-hover);
 }
 
-.stAlert {
-    background-color: var(--alert-bg-info);
-    border-left: 5px solid var(--alert-border-info);
-    color: var(--alert-text-info);
-    border-radius: 8px;
-    animation: fadeIn 0.5s ease-out; /* Added animation to alerts */
-}
-/* Ensure text inside info box is white */
-div[data-testid="stAlert"] div[data-testid="stMarkdownContainer"] {
-    color: var(--alert-text-info); /* Should be white */
+.stButton > button:active {
+    transform: translateY(0);
 }
 
-/* Ensure caption text is white */
-div[data-testid="stCaption"] {
-    color: var(--subtle-text-color); /* Should be white */
+/* دکمه‌های ثانویه */
+.secondary-button {
+    background: var(--button-secondary) !important;
+    color: var(--text-primary) !important;
 }
 
-
-/* --- PAGE CONTENT ANIMATION --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-/* Apply fade-in to main content blocks of each page */
-.stApp > div > div > div.main > div:not(:first-child) { /* Target main content area, excluding the fixed toggle */
-    animation: fadeIn 0.6s ease-out;
+.success-button {
+    background: var(--button-success) !important;
 }
 
+.danger-button {
+    background: var(--button-danger) !important;
+}
 
-/* --- CHAT PAGE --- */
+/* ==================== ورودی‌ها ==================== */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea,
+.stSelectbox > div > div > select {
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 12px;
+    padding: 1rem;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+    direction: rtl;
+    text-align: right;
+    color: var(--text-primary);
+}
+
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus,
+.stSelectbox > div > div > select:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.25);
+    outline: none;
+}
+
+.stTextInput > div > div > input::placeholder,
+.stTextArea > div > div > textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* برچسب‌های ورودی */
+.stTextInput > label,
+.stTextArea > label,
+.stSelectbox > label {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ==================== چت و پیام‌ها ==================== */
+.chat-container {
+    background: var(--content-bg);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 20px var(--shadow-light);
+    border: 1px solid var(--border-light);
+}
+
+.user-message {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: var(--text-inverse);
+    padding: 1rem 1.5rem;
+    border-radius: 20px 20px 5px 20px;
+    margin: 1rem 0;
+    margin-left: 20%;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    font-weight: 500;
+}
+
+.assistant-message {
+    background: var(--secondary-bg-color);
+    color: var(--text-primary);
+    padding: 1rem 1.5rem;
+    border-radius: 20px 20px 20px 5px;
+    margin: 1rem 0;
+    margin-right: 20%;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    border-left: 4px solid var(--accent-color);
+}
+
+/* پیام‌های چت Streamlit */
 .stChatMessage {
     border-radius: 18px;
     padding: 14px 20px;
     margin-bottom: 10px;
-    box-shadow: 0 2px 5px var(--shadow-color);
+    box-shadow: 0 2px 5px var(--shadow-light);
     max-width: 85%;
     line-height: 1.6;
     font-size: 16px;
     animation: fadeIn 0.4s ease-out;
     border: 1px solid var(--border-color);
 }
+
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-user"]) {
-    background-color: var(--user-msg-bg);
-    margin-right: auto; /* Align user messages to the right */
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: var(--text-inverse);
+    margin-right: auto;
     margin-left: 0;
 }
+
 div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assistant"]) {
-    background-color: var(--assistant-msg-bg);
-    margin-left: auto; /* Align assistant messages to the left */
+    background: var(--secondary-bg-color);
+    color: var(--text-primary);
+    margin-left: auto;
     margin-right: 0;
+    border-left: 4px solid var(--accent-color);
 }
 
+/* ==================== ساید‌بار ==================== */
+.css-1d391kg {
+    background: var(--sidebar-bg);
+    border-radius: 0 20px 20px 0;
+    border-right: 1px solid var(--border-color);
+}
+
+.sidebar-content {
+    padding: 2rem 1rem;
+}
+
+/* ==================== متریک‌ها و آمار ==================== */
+.stMetric {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px var(--shadow-light);
+    border: 1px solid var(--border-light);
+    text-align: center;
+}
+
+.stMetric > div {
+    color: var(--text-primary);
+}
+
+.stMetric [data-testid="metric-container"] > div:first-child {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ==================== جداول ==================== */
+.stDataFrame {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px var(--shadow-light);
+    background: var(--card-bg);
+}
+
+.stDataFrame table {
+    border-collapse: collapse;
+    direction: rtl;
+    background: var(--card-bg);
+}
+
+.stDataFrame th {
+    background: var(--primary-color);
+    color: var(--text-inverse);
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.stDataFrame td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+    background: var(--card-bg);
+}
+
+/* ==================== پیشرفت و لودینگ ==================== */
+.stProgress > div > div > div > div {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.stSpinner > div {
+    border-top-color: var(--primary-color);
+}
+
+/* ==================== اعلان‌ها ==================== */
+.stAlert {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    font-family: 'Vazirmatn', sans-serif;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.stAlert[data-baseweb="notification"] {
+    background: var(--card-bg);
+    border-left: 4px solid var(--info-color);
+}
+
+.stSuccess {
+    background: rgba(76, 175, 80, 0.2);
+    border-left: 4px solid var(--success-color);
+    color: var(--success-color);
+}
+
+.stWarning {
+    background: rgba(255, 193, 7, 0.2);
+    border-left: 4px solid var(--warning-color);
+    color: var(--warning-color);
+}
+
+.stError {
+    background: rgba(244, 67, 54, 0.2);
+    border-left: 4px solid var(--danger-color);
+    color: var(--danger-color);
+}
+
+/* ==================== تب‌ها ==================== */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 1rem;
+    background: var(--secondary-bg-color);
+    border-radius: 15px;
+    padding: 0.5rem;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: transparent;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all var(--transition-fast);
+}
+
+.stTabs [aria-selected="true"] {
+    background: var(--primary-color);
+    color: var(--text-inverse);
+    box-shadow: 0 2px 10px var(--shadow-light);
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    color: var(--primary-color);
+    background: rgba(79, 195, 247, 0.1);
+}
+
+/* ==================== فایل آپلود ==================== */
+.stFileUploader {
+    border: 2px dashed var(--border-color);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all var(--transition-medium);
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.stFileUploader:hover {
+    border-color: var(--primary-color);
+    background: rgba(79, 195, 247, 0.1);
+}
+
+/* ==================== انیمیشن‌ها ==================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 5px var(--primary-color); }
+    50% { box-shadow: 0 0 20px var(--primary-color), 0 0 30px var(--primary-color); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+.animate-glow {
+    animation: glow 2s infinite;
+}
+
+/* ==================== اسکرول بار سفارشی ==================== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--secondary-bg-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+/* ==================== ریسپانسیو ==================== */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding: 1rem 0.5rem;
+    }
+    
+    .header-title {
+        font-size: 2rem;
+    }
+    
+    .custom-card {
+        padding: 1.5rem;
+        border-radius: 15px;
+    }
+    
+    .user-message,
+    .assistant-message {
+        margin-left: 10%;
+        margin-right: 10%;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* ==================== تنظیمات اضافی برای حرفه‌ای بودن ==================== */
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.stMarkdown p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.stMarkdown code {
+    background: var(--secondary-bg-color);
+    color: var(--primary-color);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+.stMarkdown pre {
+    background: var(--secondary-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* حذف فوکوس ناخواسته */
+button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px var(--primary-color) !important;
+}
+
+/* بهبود ظاهر چک‌باکس‌ها */
+.stCheckbox > label {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.stCheckbox input[type="checkbox"] {
+    accent-color: var(--primary-color);
+}
+
+/* بهبود ظاهر رادیو باتن‌ها */
+.stRadio > label {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.stRadio input[type="radio"] {
+    accent-color: var(--primary-color);
+}
+
+/* افکت‌های ویژه برای تعامل */
+.interactive-element {
+    transition: all var(--transition-medium);
+    cursor: pointer;
+}
+
+.interactive-element:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+}
+
+/* بهبود ظاهر ورودی چت */
 .stChatInput {
-    background-color: var(--secondary-bg-color);
+    background: var(--secondary-bg-color);
     border-top: 1px solid var(--border-color);
     padding: 1rem 0;
-}
-/* Style for the chat input text itself */
-.stChatInput input {
-    color: var(--input-text-color); /* Ensure text typed in chat input is white */
-}
-/* Style for the send button icon in chat input */
-.stChatInput button svg {
-    fill: var(--accent-color); /* Make the send icon accent color */
-    transition: fill 0.2s ease, transform 0.2s ease; /* Animation for send button icon */
-}
-.stChatInput button:hover svg {
-    transform: scale(1.1); /* Pop effect on hover */
-}
-.chat-section-header {
-    text-align: right;
-    margin-top: 30px;
-    margin-bottom: 15px;
-    color: var(--header-color);
+    border-radius: 15px 15px 0 0;
 }
 
-/* Typing indicator for assistant */
+.stChatInput input {
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 12px;
+}
+
+.stChatInput input:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.25);
+}
+
+.stChatInput button svg {
+    fill: var(--accent-color);
+    transition: fill 0.2s ease, transform 0.2s ease;
+}
+
+.stChatInput button:hover svg {
+    transform: scale(1.1);
+}
+
+/* نشانگر تایپ برای دستیار */
 .typing-indicator {
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* Align to start for RTL */
-    height: 20px; /* Adjust height as needed */
+    justify-content: flex-start;
+    height: 20px;
     margin-bottom: 10px;
 }
 
@@ -243,7 +589,7 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     width: 6px;
     height: 6px;
     margin: 0 2px;
-    background-color: var(--subtle-text-color); /* Color of dots */
+    background-color: var(--primary-color);
     border-radius: 50%;
     opacity: 0;
     animation: bounce 1.4s infinite ease-in-out;
@@ -272,50 +618,90 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assist
     }
 }
 
-
-/* --- SIDEBAR & ADMIN --- */
-.stSidebar {
-    background-color: var(--secondary-bg-color);
-    border-left: 1px solid var(--border-color);
-    transition: background-color 0.3s ease;
-    padding-top: 30px;
-}
-.stSidebar .stButton > button {
-    background-color: var(--accent-color);
-    color: var(--accent-text-color);
-}
-.stSidebar .stButton > button:hover {
-    filter: brightness(90%);
+/* بهبود ظاهر کارت ورود */
+.login-card {
+    margin-top: 4rem;
+    padding: 2rem 2.5rem;
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px var(--shadow-light);
+    border: 1px solid var(--border-light);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.login-title {
+    text-align: center;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* بهبود ظاهر نشان‌های نقش کاربر */
 .user-role-badge {
-    padding: 4px 10px;
-    border-radius: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
     display: inline-block;
     text-align: center;
     min-width: 60px;
+    transition: all var(--transition-fast);
 }
+
 .user-role-badge.role-مدیر {
-    background-color: color-mix(in srgb, var(--accent-color) 30%, transparent);
-    color: var(--accent-text-color);
+    background: linear-gradient(135deg, var(--accent-color), var(--warning-color));
+    color: var(--text-inverse);
     border: 1px solid var(--accent-color);
 }
+
 .user-role-badge.role-عادی {
-    background-color: var(--input-bg);
-    color: var(--subtle-text-color);
+    background: var(--secondary-bg-color);
+    color: var(--text-secondary);
     border: 1px solid var(--border-color);
 }
 
+/* بهبود ظاهر بخش مدیریت */
 .admin-section-info {
     font-size: 16px;
-    color: var(--subtle-text-color);
+    color: var(--text-secondary);
     margin-top: 20px;
     margin-bottom: 10px;
+    padding: 1rem;
+    background: var(--secondary-bg-color);
+    border-radius: 10px;
+    border-left: 4px solid var(--info-color);
 }
 
-/* Streamlit specific overrides for better RTL and spacing */
-div.stVerticalBlock > div:first-child {
-    padding-top: 0;
+/* پنهان کردن المان‌های غیرضروری Streamlit */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* بهبود کلی انیمیشن‌ها */
+.stApp > div > div > div.main > div:not(:first-child) {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* افکت‌های خاص برای تم تیره */
+.neon-glow {
+    box-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 40px var(--primary-color);
+}
+
+.cyber-border {
+    border: 2px solid var(--primary-color);
+    border-image: linear-gradient(45deg, var(--primary-color), var(--secondary-color)) 1;
 }

@@ -1,5 +1,5 @@
 streamlit
-# langchain-google-genai # Removed as per request
+langchain-google-genai
 langchain-community
 faiss-cpu
 pypdf

@@ -8,6 +8,7 @@ import tempfile
 import docx # For Word files
 import pandas as pd # For Excel files
 import requests # For making HTTP requests to custom AI API
+import shutil # For removing directories
 
 # LangChain and AI related imports
 from langchain_community.vectorstores import FAISS
@@ -434,6 +435,15 @@ def rebuild_knowledge_base(api_key_for_embeddings): # Pass API key for embedding
     if not os.path.exists(KNOWLEDGE_SOURCES_DIR):
         os.makedirs(KNOWLEDGE_SOURCES_DIR)
 
+    # --- NEW: Delete existing FAISS index to ensure a fresh build ---
+    if os.path.exists(FAISS_INDEX_PATH):
+        try:
+            shutil.rmtree(FAISS_INDEX_PATH)
+            st.info("پوشه پایگاه دانش FAISS قبلی حذف شد.")
+        except Exception as e:
+            st.warning(f"⚠️ خطایی در حذف پوشه FAISS رخ داد: {e}. ممکن است پایگاه دانش به درستی بازسازی نشود.")
+    # --- END NEW ---
+
     all_documents = []
     processed_files_count = 0
     
@@ -453,13 +463,13 @@ def rebuild_knowledge_base(api_key_for_embeddings): # Pass API key for embedding
     if not all_documents:
         st.warning("هیچ سند قابل پردازشی در پوشه منابع پایگاه دانش یافت نشد. پایگاه دانش بازسازی نشد.")
         # Ensure FAISS index is cleared if no documents exist
+        # This part is now redundant due to the shutil.rmtree above, but kept for clarity if logic changes
         if os.path.exists(FAISS_INDEX_PATH):
             import shutil
             shutil.rmtree(FAISS_INDEX_PATH)
         st.cache_resource.clear()
         return
-    
-    # تنظیم chunk_size و chunk_overlap برای RecursiveCharacterTextSplitter
+
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200) 
     chunks = text_splitter.split_documents(all_documents)
     
@@ -649,7 +659,13 @@ def render_chat_page():
     vector_store, _ = load_knowledge_base_from_index(aval_ai_api_key) # Use aval_ai_api_key
 
     if vector_store is None:
-        st.error("🚨 پایگاه دانش بارگذاری نشد. لطفاً با مدیر سیستم تماس بگیرید و اسناد را اضافه کنید.")
+        st.error("🚨 پایگاه دانش بارگذاری نشد.")
+        if st.session_state.is_admin:
+            st.warning("به نظر می‌رسد پایگاه دانش خالی است یا با مشکل مواجه شده است. به عنوان مدیر، می‌توانید از بخش مدیریت، اسناد جدید را بارگذاری و پایگاه دانش را بازسازی کنید.")
+            if st.button("🛠️ رفتن به پنل مدیریت برای بازسازی پایگاه دانش", use_container_width=True):
+                navigate_to("admin")
+        else:
+            st.warning("لطفاً با مدیر سیستم تماس بگیرید تا اسناد را اضافه یا پایگاه دانش را بازسازی کند.")
         return # Stop execution if KB not loaded
 
     retriever = vector_store.as_retriever()
@@ -796,8 +812,8 @@ def render_chat_page():
                     full_response = ""
                     if user_uploaded_context_file and ("image" in file_type):
                         # For image input, use multimodal_llm directly with the structured input
-                        raw_response = multimodal_llm.invoke(llm_prompt_input_multimodal)
                         # Ensure raw_response has a .content attribute, or adjust based on actual multimodal LLM output
+                        raw_response = multimodal_llm._call(llm_prompt_input_multimodal) # Use _call for direct invocation
                         full_response = raw_response if isinstance(raw_response, str) else getattr(raw_response, 'content', "پاسخی دریافت نشد.")
                     else:
                         # For text, PDF, DOCX, XLSX input, use qa_chain (RAG)

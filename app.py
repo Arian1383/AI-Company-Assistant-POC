@@ -431,58 +431,97 @@ def process_file_to_documents(file_path, file_extension):
 
 def rebuild_knowledge_base(api_key_for_embeddings): # Pass API key for embeddings
     """Rebuilds the FAISS knowledge base from all files in KNOWLEDGE_SOURCES_DIR."""
+    st.info(f"مسیر پوشه منابع دانش: {KNOWLEDGE_SOURCES_DIR}")
     # Ensure KNOWLEDGE_SOURCES_DIR exists
     if not os.path.exists(KNOWLEDGE_SOURCES_DIR):
-        os.makedirs(KNOWLEDGE_SOURCES_DIR)
+        try:
+            os.makedirs(KNOWLEDGE_SOURCES_DIR)
+            st.info(f"پوشه منابع دانش '{KNOWLEDGE_SOURCES_DIR}' ایجاد شد.")
+        except OSError as e:
+            st.error(f"❌ خطای دسترسی: قادر به ایجاد پوشه منابع دانش '{KNOWLEDGE_SOURCES_DIR}' نیستم. لطفاً مجوزهای پوشه اصلی را بررسی کنید. خطا: {e}")
+            return
+    else:
+        st.info(f"پوشه منابع دانش '{KNOWLEDGE_SOURCES_DIR}' از قبل وجود دارد.")
 
     # --- NEW: Delete existing FAISS index to ensure a fresh build ---
     if os.path.exists(FAISS_INDEX_PATH):
         try:
+            st.info(f"در حال حذف پوشه پایگاه دانش FAISS قبلی: {FAISS_INDEX_PATH}")
             shutil.rmtree(FAISS_INDEX_PATH)
-            st.info("پوشه پایگاه دانش FAISS قبلی حذف شد.")
+            st.info("پوشه پایگاه دانش FAISS قبلی با موفقیت حذف شد.")
         except Exception as e:
-            st.warning(f"⚠️ خطایی در حذف پوشه FAISS رخ داد: {e}. ممکن است پایگاه دانش به درستی بازسازی نشود.")
+            st.warning(f"⚠️ خطایی در حذف پوشه FAISS رخ داد: {e}. ممکن است پایگاه دانش به درستی بازسازی نشود. لطفاً مجوزها را بررسی کنید.")
+    else:
+        st.info(f"پوشه پایگاه دانش FAISS در مسیر '{FAISS_INDEX_PATH}' یافت نشد. یک ایندکس جدید ایجاد خواهد شد.")
     # --- END NEW ---
 
     all_documents = []
     processed_files_count = 0
     
     # Iterate through all files in the source directory
-    for filename in os.listdir(KNOWLEDGE_SOURCES_DIR):
+    st.info(f"در حال اسکن فایل‌ها در پوشه: {KNOWLEDGE_SOURCES_DIR}")
+    files_in_source_dir = []
+    try:
+        files_in_source_dir = [f for f in os.listdir(KNOWLEDGE_SOURCES_DIR) if os.path.isfile(os.path.join(KNOWLEDGE_SOURCES_DIR, f))]
+    except OSError as e:
+        st.error(f"❌ خطای دسترسی: قادر به خواندن پوشه منابع دانش '{KNOWLEDGE_SOURCES_DIR}' نیستم. لطفاً مجوزها را بررسی کنید. خطا: {e}")
+        st.cache_resource.clear()
+        return
+
+    if not files_in_source_dir:
+        st.warning("هیچ فایلی در پوشه منابع پایگاه دانش یافت نشد. پایگاه دانش بازسازی نشد. لطفاً فایل‌هایی را بارگذاری کنید.")
+        st.cache_resource.clear()
+        return
+
+    for filename in files_in_source_dir:
         file_path = os.path.join(KNOWLEDGE_SOURCES_DIR, filename)
         file_extension = os.path.splitext(filename)[1].lower()
 
         if file_extension in [".pdf", ".docx", ".xlsx"]:
             try:
+                st.info(f"در حال پردازش فایل: {filename}")
                 documents = process_file_to_documents(file_path, file_extension)
                 all_documents.extend(documents)
                 processed_files_count += 1
+                st.info(f"فایل '{filename}' با موفقیت پردازش شد.")
             except Exception as e:
                 st.warning(f"⚠️ خطایی در پردازش فایل '{filename}' رخ داد: {e}. این فایل نادیده گرفته شد.")
+        else:
+            st.info(f"فایل '{filename}' نادیده گرفته شد. فرمت آن پشتیبانی نمی‌شود.")
     
     if not all_documents:
         st.warning("هیچ سند قابل پردازشی در پوشه منابع پایگاه دانش یافت نشد. پایگاه دانش بازسازی نشد.")
-        # This part is now redundant due to the shutil.rmtree above, but kept for clarity if logic changes
-        if os.path.exists(FAISS_INDEX_PATH):
-            import shutil
-            shutil.rmtree(FAISS_INDEX_PATH)
         st.cache_resource.clear()
         return
 
+    st.info(f"تعداد کل اسناد پردازش شده: {len(all_documents)}")
+    st.info("در حال تقسیم اسناد به بخش‌های کوچکتر (chunks)...")
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200) 
     chunks = text_splitter.split_documents(all_documents)
+    st.info(f"تعداد کل بخش‌های ایجاد شده: {len(chunks)}")
     
-    # Use CustomEmbeddings here for rebuilding
-    embeddings = CustomEmbeddings(api_key=api_key_for_embeddings)
-    vector_store = FAISS.from_documents(chunks, embeddings)
-    vector_store.save_local(FAISS_INDEX_PATH)
-    
-    # Add a small delay to ensure file system sync
-    time.sleep(1) # Added sleep here
+    st.info("در حال ایجاد Embeddings و ساخت پایگاه دانش FAISS...")
+    try:
+        embeddings = CustomEmbeddings(api_key=api_key_for_embeddings)
+        vector_store = FAISS.from_documents(chunks, embeddings)
+    except Exception as e:
+        st.error(f"❌ خطایی در ایجاد Embeddings یا پایگاه دانش FAISS رخ داد: {e}")
+        st.cache_resource.clear()
+        return
 
-    # Verify if the FAISS index directory was actually created/saved
-    if not os.path.exists(FAISS_INDEX_PATH):
-        st.error("❌ هشدار: پوشه پایگاه دانش FAISS پس از ذخیره سازی پیدا نشد. ممکن است مشکل مجوز یا فضای دیسک وجود داشته باشد.")
+    st.info(f"در حال ذخیره پایگاه دانش FAISS در مسیر: {FAISS_INDEX_PATH}")
+    try:
+        vector_store.save_local(FAISS_INDEX_PATH)
+        # Add a small delay to ensure file system sync
+        time.sleep(1) # Added sleep here
+        if not os.path.exists(FAISS_INDEX_PATH):
+            st.error("❌ هشدار: پوشه پایگاه دانش FAISS پس از ذخیره سازی پیدا نشد. ممکن است مشکل مجوز یا فضای دیسک وجود داشته باشد. لطفاً دسترسی‌های پوشه را بررسی کنید.")
+        else:
+            st.info(f"پایگاه دانش FAISS با موفقیت در '{FAISS_INDEX_PATH}' ذخیره شد.")
+    except Exception as e:
+        st.error(f"❌ خطایی در ذخیره سازی پایگاه دانش FAISS رخ داد: {e}. لطفاً مجوزهای نوشتن در پوشه را بررسی کنید.")
+        st.cache_resource.clear()
+        return
     
     st.cache_resource.clear() # Clear cache so load_knowledge_base_from_index reloads with new data
     return processed_files_count # Return count of processed files
@@ -492,10 +531,13 @@ def delete_knowledge_file(filename):
     """Deletes a file from KNOWLEDGE_SOURCES_DIR and rebuilds the knowledge base."""
     file_path = os.path.join(KNOWLEDGE_SOURCES_DIR, filename)
     if os.path.exists(file_path):
-        os.remove(file_path)
-        st.success(f"✅ فایل '{filename}' با موفقیت حذف شد.")
-        rebuild_knowledge_base(aval_ai_api_key) # Rebuild after deletion, pass API key
-        st.rerun() # Rerun to update the file list and KB status
+        try:
+            os.remove(file_path)
+            st.success(f"✅ فایل '{filename}' با موفقیت حذف شد.")
+            rebuild_knowledge_base(aval_ai_api_key) # Rebuild after deletion, pass API key
+            st.rerun() # Rerun to update the file list and KB status
+        except Exception as e:
+            st.error(f"❌ خطایی در حذف فایل '{filename}' رخ داد: {e}. لطفاً مجوزهای دسترسی را بررسی کنید.")
     else:
         st.warning(f"⚠️ فایل '{filename}' یافت نشد.")
 

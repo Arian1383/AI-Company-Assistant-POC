@@ -393,10 +393,26 @@ def delete_user(username_to_delete):
 
 @st.cache_resource(ttl=3600)
 def load_knowledge_base_from_index(api_key_for_embeddings): # Renamed parameter for clarity
-    """Loads the FAISS knowledge base from disk."""
+    """Loads the FAISS knowledge base from disk, creates it if it doesn't exist."""
+    # If FAISS index doesn't exist, try to create it automatically
     if not os.path.exists(FAISS_INDEX_PATH):
-        st.warning("⚠️ پوشه پایگاه دانش FAISS یافت نشد. لطفاً ابتدا فایل‌های پایگاه دانش را بارگذاری کنید.")
-        return None, None # Return None for both vector_store and chunks
+        st.info("🔄 پایگاه دانش FAISS یافت نشد. در حال ساخت خودکار از فایل‌های موجود...")
+        
+        # Check if there are knowledge files available
+        if os.path.exists(KNOWLEDGE_SOURCES_DIR) and os.listdir(KNOWLEDGE_SOURCES_DIR):
+            try:
+                processed_count = rebuild_knowledge_base(api_key_for_embeddings)
+                if processed_count and processed_count > 0:
+                    st.success(f"✅ پایگاه دانش با موفقیت از {processed_count} فایل ساخته شد!")
+                else:
+                    st.warning("⚠️ هیچ فایل قابل پردازشی یافت نشد.")
+                    return None, None
+            except Exception as e:
+                st.error(f"🚨 خطا در ساخت خودکار پایگاه دانش: {e}")
+                return None, None
+        else:
+            st.warning("⚠️ پوشه پایگاه دانش FAISS یافت نشد و فایل‌های منبع نیز موجود نیست. لطفاً ابتدا فایل‌های پایگاه دانش را بارگذاری کنید.")
+            return None, None
     
     try:
         # Use CustomEmbeddings here
@@ -661,8 +677,9 @@ def render_chat_page():
 
     st.info("💡 من اینجا هستم تا به سوالات شما بر اساس اسناد داخلی شرکت پاسخ دهم.")
 
-    # Load knowledge base (and cache it)
-    vector_store, _ = load_knowledge_base_from_index(aval_ai_api_key) # Use aval_ai_api_key
+    # Load knowledge base (and cache it) with loading animation
+    with st.spinner('🔄 در حال بارگذاری پایگاه دانش...'):
+        vector_store, _ = load_knowledge_base_from_index(aval_ai_api_key) # Use aval_ai_api_key
 
     if vector_store is None:
         st.error("🚨 پایگاه دانش بارگذاری نشد.")

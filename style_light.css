@@ -1,303 +1,429 @@
 /* --- THEME DEFINITIONS - Light Theme --- */
 :root { /* Define variables in :root for global access */
-    --bg-color: #f8f9fa; /* Light background */
-    --secondary-bg-color: #ffffff; /* White for cards, sidebar */
-    --text-color: #212529; /* Dark text */
-    --header-color: #000000; /* Black for titles */
-    --subtle-text-color: #6c757d; /* Grey for captions, hints */
-    --border-color: #ced4da; /* Light grey borders */
+    --bg-color: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Modern gradient background */
+    --secondary-bg-color: rgba(255, 255, 255, 0.95); /* Semi-transparent white for glass effect */
+    --text-color: #2c3e50; /* Modern dark text */
+    --header-color: #1a202c; /* Darker for better contrast */
+    --subtle-text-color: #718096; /* Modern grey */
+    --border-color: rgba(226, 232, 240, 0.8); /* Semi-transparent borders */
     --accent-color: #FFC107; /* Sepahan Yellow */
-    --accent-text-color: #050505; /* Dark text on accent */
-    --user-msg-bg: #eaf6ff; /* Light blue for user messages */
-    --assistant-msg-bg: #ffffff; /* White for assistant messages */
-    --shadow-color: rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    --input-bg: #f0f2f5; /* Light grey for input fields */
-    --input-border: #ccd0d5; /* Slightly darker grey for input borders */
-    --input-text-color: #343a40; /* Dark text for inputs */
-    --alert-bg-info: #e7f3ff; /* Light blue for info alerts */
-    --alert-border-info: #FFC107; /* Accent color for info alert border */
-    --alert-text-info: #212529; /* Dark text for info alerts */
+    --accent-hover-color: #FFB300; /* Darker yellow for hover */
+    --accent-text-color: #1a202c; /* Dark text on accent */
+    --user-msg-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Beautiful gradient */
+    --assistant-msg-bg: rgba(255, 255, 255, 0.9); /* Glass effect */
+    --shadow-color: rgba(0, 0, 0, 0.15); /* Enhanced shadow */
+    --input-bg: rgba(255, 255, 255, 0.8); /* Glass effect */
+    --input-border: rgba(99, 102, 241, 0.3); /* Subtle colored border */
+    --input-text-color: #2d3748; /* Modern dark text */
+    --alert-bg-info: rgba(59, 130, 246, 0.1); /* Modern blue alert */
+    --alert-border-info: #3b82f6; /* Blue border */
+    --alert-text-info: #1e40af; /* Dark blue text */
+    --success-color: #10b981; /* Modern green */
+    --error-color: #ef4444; /* Modern red */
+    --warning-color: #f59e0b; /* Modern orange */
 }
 
 /* --- GENERAL APP STYLING --- */
 body {
     direction: rtl;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    font-family: 'Vazirmatn', sans-serif; /* Ensure Vazirmatn is used */
-    color: var(--text-color); /* Apply base text color */
-    background-color: var(--bg-color); /* Apply base background color */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-color);
+    background: var(--bg-color);
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
 .stApp {
-    background-color: var(--bg-color);
+    background: var(--bg-color);
     color: var(--text-color);
+    min-height: 100vh;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stApp > header { display: none; }
 .main .block-container {
-    max-width: 900px;
+    max-width: 1000px;
     padding: 1rem 2rem;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    margin: 1rem auto;
+    box-shadow: 0 8px 32px var(--shadow-color);
+}
+
+/* --- MODERN ANIMATIONS --- */
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slideInRight {
+    from { 
+        opacity: 0; 
+        transform: translateX(50px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.05); 
+    }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
 /* --- LOGIN PAGE --- */
-@keyframes popIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
 .login-card {
-    margin-top: 4rem; /* Reverted margin-top for login card as logo is gone */
-    padding: 1.5rem 2.5rem;
-    background-color: var(--secondary-bg-color);
-    border-radius: 16px;
-    box-shadow: 0 8px 25px var(--shadow-color);
+    margin-top: 2rem;
+    padding: 2.5rem;
+    background: var(--secondary-bg-color);
+    backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
-    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px var(--shadow-color);
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-hover-color));
+    animation: shimmer 2s infinite;
+    background-size: 200% 100%;
+}
+
 .login-title {
-    text-align: center;
     color: var(--header-color);
+    font-size: 2.2rem;
     font-weight: 700;
+    text-align: center;
     margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--header-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
 }
+
 .login-subtitle {
-    text-align: center;
     color: var(--subtle-text-color);
+    font-size: 1rem;
+    text-align: center;
     margin-bottom: 2rem;
-    font-size: 15px;
     line-height: 1.6;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
 }
 
-/* --- GENERAL COMPONENTS --- */
-h1, h2, h3 { font-weight: 700; color: var(--header-color); }
-
-.stButton>button {
-    background-color: var(--accent-color);
-    color: var(--accent-text-color);
-    border-radius: 10px;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Added box-shadow to transition */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Default button shadow */
-}
-.stButton>button:hover {
-    transform: translateY(-2px) scale(1.02); /* Slight lift and scale on hover */
-    filter: brightness(95%);
-    box-shadow: 0 6px 10px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
-}
-.stButton>button:active {
-    transform: translateY(0) scale(0.98); /* Press effect */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Reduced shadow on active */
+/* --- ENHANCED FORM ELEMENTS --- */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea,
+.stSelectbox > div > div > select {
+    background: var(--input-bg) !important;
+    border: 2px solid var(--input-border) !important;
+    border-radius: 12px !important;
+    color: var(--input-text-color) !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    backdrop-filter: blur(10px) !important;
 }
 
-.stTextInput input, .stTextInput textarea, .stFileUploader > section {
-    border-radius: 8px;
-    border: 1px solid var(--input-border);
-    padding: 12px;
-    font-size: 15px;
-    background-color: var(--input-bg);
-    color: var(--input-text-color); /* Use specific input text color */
-    transition: all 0.2s ease;
-}
-.stTextInput input:focus, .stTextInput textarea:focus, .stFileUploader > section:focus-within {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
-}
-div[data-testid="stTextInput"] label,
-div[data-testid="stRadio"] label,
-div[data-testid="stFileUploader"] label,
-div[data-testid="stCheckbox"] label {
-    font-weight: 500;
-    color: var(--subtle-text-color);
-    margin-bottom: 8px;
-}
-/* Placeholder text color */
-.stTextInput input::placeholder,
-.stTextInput textarea::placeholder {
-    color: var(--subtle-text-color);
-    opacity: 0.7; /* Make placeholder slightly less opaque than actual text */
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus,
+.stSelectbox > div > div > select:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1) !important;
+    transform: translateY(-2px) !important;
 }
 
-.stTabs [data-baseweb="tab-list"] {
-    justify-content: center;
-    border-bottom: 2px solid var(--border-color);
-}
-.stTabs [data-baseweb="tab"] {
-    padding: 10px 15px;
-    background-color: transparent;
-    color: var(--subtle-text-color); /* Default tab text color */
-    transition: all 0.2s ease; /* Added transition for tabs */
-}
-.stTabs [aria-selected="true"] {
-    border-bottom: 2px solid var(--accent-color);
-    color: var(--accent-color);
-    font-weight: 600;
-    transform: translateY(-2px); /* Slight lift for active tab */
-}
-.stTabs [data-baseweb="tab"]:hover {
-    color: var(--accent-color); /* Highlight on hover */
+/* --- MODERN BUTTONS --- */
+.stButton > button {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover-color)) !important;
+    color: var(--accent-text-color) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 2rem !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
-
-.stAlert {
-    background-color: var(--alert-bg-info);
-    border-left: 5px solid var(--alert-border-info);
-    color: var(--alert-text-info);
-    border-radius: 8px;
-    animation: fadeIn 0.5s ease-out; /* Added animation to alerts */
-}
-div[data-testid="stAlert"] div[data-testid="stMarkdownContainer"] {
-    color: var(--alert-text-info);
-}
-div[data-testid="stCaption"] {
-    color: var(--subtle-text-color);
+.stButton > button:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4) !important;
 }
 
-
-/* --- PAGE CONTENT ANIMATION --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-/* Apply fade-in to main content blocks of each page */
-.stApp > div > div > div.main > div:not(:first-child) { /* Target main content area, excluding the fixed toggle */
-    animation: fadeIn 0.6s ease-out;
+.stButton > button:active {
+    transform: translateY(-1px) !important;
 }
 
-
-/* --- CHAT PAGE --- */
-.stChatMessage {
-    border-radius: 18px;
-    padding: 14px 20px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 5px var(--shadow-color);
-    max-width: 85%;
-    line-height: 1.6;
-    font-size: 16px;
-    animation: fadeIn 0.4s ease-out;
-    border: 1px solid var(--border-color);
-}
-div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-user"]) {
-    background-color: var(--user-msg-bg);
-    margin-right: auto; /* Align user messages to the right */
-    margin-left: 0;
-}
-div[data-testid="stChatMessage"]:has(div[data-testid="stMarkdownContainer-assistant"]) {
-    background-color: var(--assistant-msg-bg);
-    margin-left: auto; /* Align assistant messages to the left */
-    margin-right: 0;
+.stButton > button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
-.stChatInput {
-    background-color: var(--secondary-bg-color);
-    border-top: 1px solid var(--border-color);
-    padding: 1rem 0;
+.stButton > button:hover::before {
+    left: 100%;
 }
-.stChatInput input {
-    color: var(--input-text-color);
+
+/* --- SIDEBAR ENHANCEMENTS --- */
+.css-1d391kg {
+    background: var(--secondary-bg-color) !important;
+    backdrop-filter: blur(20px) !important;
+    border-right: 1px solid var(--border-color) !important;
 }
-.stChatInput button svg {
-    fill: var(--accent-color);
-    transition: fill 0.2s ease, transform 0.2s ease; /* Animation for send button icon */
+
+.sidebar .sidebar-content {
+    background: transparent !important;
 }
-.stChatInput button:hover svg {
-    transform: scale(1.1); /* Pop effect on hover */
-}
+
+/* --- CHAT INTERFACE --- */
 .chat-section-header {
-    text-align: right;
-    margin-top: 30px;
-    margin-bottom: 15px;
     color: var(--header-color);
-}
-
-/* Typing indicator for assistant */
-.typing-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* Align to start for RTL */
-    height: 20px; /* Adjust height as needed */
-    margin-bottom: 10px;
-}
-
-.typing-indicator span {
-    width: 6px;
-    height: 6px;
-    margin: 0 2px;
-    background-color: var(--subtle-text-color); /* Color of dots */
-    border-radius: 50%;
-    opacity: 0;
-    animation: bounce 1.4s infinite ease-in-out;
-}
-
-.typing-indicator span:nth-child(1) {
-    animation-delay: -0.32s;
-}
-
-.typing-indicator span:nth-child(2) {
-    animation-delay: -0.16s;
-}
-
-.typing-indicator span:nth-child(3) {
-    animation-delay: 0s;
-}
-
-@keyframes bounce {
-    0%, 80%, 100% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    40% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-
-/* --- SIDEBAR & ADMIN --- */
-.stSidebar {
-    background-color: var(--secondary-bg-color);
-    border-left: 1px solid var(--border-color);
-    transition: background-color 0.3s ease;
-    padding-top: 30px;
-}
-.stSidebar .stButton > button {
-    background-color: var(--accent-color);
-    color: var(--accent-text-color);
-}
-.stSidebar .stButton > button:hover {
-    filter: brightness(90%);
-}
-
-.user-role-badge {
-    padding: 4px 10px;
-    border-radius: 15px;
-    font-size: 12px;
+    font-size: 1.3rem;
     font-weight: 600;
-    display: inline-block;
+    margin: 1.5rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent-color);
+    animation: slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- MESSAGE BUBBLES --- */
+.stChatMessage {
+    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 1rem;
+}
+
+.stChatMessage[data-testid="chat-message-user"] {
+    background: var(--user-msg-bg) !important;
+    border-radius: 18px 18px 4px 18px !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.stChatMessage[data-testid="chat-message-assistant"] {
+    background: var(--assistant-msg-bg) !important;
+    border-radius: 18px 18px 18px 4px !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 15px var(--shadow-color) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+/* --- TABS ENHANCEMENT --- */
+.stTabs [data-baseweb="tab-list"] {
+    background: var(--secondary-bg-color);
+    border-radius: 12px;
+    padding: 0.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+.stTabs [data-baseweb="tab"] {
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 0.25rem;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover-color)) !important;
+    color: var(--accent-text-color) !important;
+}
+
+/* --- FILE UPLOADER --- */
+.stFileUploader {
+    background: var(--secondary-bg-color);
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
     text-align: center;
-    min-width: 60px;
-}
-.user-role-badge.role-مدیر {
-    background-color: color-mix(in srgb, var(--accent-color) 30%, transparent);
-    color: var(--accent-text-color);
-    border: 1px solid var(--accent-color);
-}
-.user-role-badge.role-عادی {
-    background-color: var(--input-bg);
-    color: var(--subtle-text-color);
-    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
 }
 
-.admin-section-info {
-    font-size: 16px;
-    color: var(--subtle-text-color);
-    margin-top: 20px;
-    margin-bottom: 10px;
+.stFileUploader:hover {
+    border-color: var(--accent-color);
+    background: rgba(255, 193, 7, 0.05);
+    transform: translateY(-2px);
 }
 
-/* Streamlit specific overrides for better RTL and spacing */
-div.stVerticalBlock > div:first-child {
-    padding-top: 0;
+/* --- ALERTS AND NOTIFICATIONS --- */
+.stAlert {
+    border-radius: 12px !important;
+    border: none !important;
+    backdrop-filter: blur(10px) !important;
+    animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.stSuccess {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-left: 4px solid var(--success-color) !important;
+    color: var(--success-color) !important;
+}
+
+.stError {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-left: 4px solid var(--error-color) !important;
+    color: var(--error-color) !important;
+}
+
+.stWarning {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border-left: 4px solid var(--warning-color) !important;
+    color: var(--warning-color) !important;
+}
+
+.stInfo {
+    background: var(--alert-bg-info) !important;
+    border-left: 4px solid var(--alert-border-info) !important;
+    color: var(--alert-text-info) !important;
+}
+
+/* --- LOADING ANIMATIONS --- */
+.stSpinner {
+    animation: pulse 2s infinite;
+}
+
+.stSpinner > div {
+    border-color: var(--accent-color) transparent transparent transparent !important;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- SUCCESS ANIMATIONS --- */
+@keyframes checkmark {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.success-checkmark {
+    animation: checkmark 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding: 1rem;
+        margin: 0.5rem;
+        border-radius: 16px;
+    }
+    
+    .login-card {
+        margin-top: 1rem;
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+    }
+    
+    .login-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* --- FLOATING ELEMENTS --- */
+.floating-element {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* --- GLASS MORPHISM EFFECT --- */
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+}
+
+/* --- THEME TOGGLE ENHANCEMENT --- */
+div[data-testid="stToggle"] {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999;
+    background: var(--secondary-bg-color);
+    border-radius: 50px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+div[data-testid="stToggle"]:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--shadow-color);
+}
+
+/* --- SCROLLBAR STYLING --- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover-color);
+}
+
+/* --- FOOTER STYLING --- */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--subtle-text-color);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 3rem;
+    backdrop-filter: blur(10px);
 }
